@@ -820,7 +820,55 @@ const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
 const APP_VERSION = '2.1.0';
 
+// ── GERÄT-ID ─────────────────────────────────────────────────
+function getOrCreateDeviceId() {
+  let id = localStorage.getItem('suno_device_id');
+  if (!id) {
+    id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+    localStorage.setItem('suno_device_id', id);
+  }
+  return id;
+}
+let DEVICE_ID = getOrCreateDeviceId();
 
+function initDeviceBar() {
+  const short = DEVICE_ID.substring(0, 8).toUpperCase();
+  document.getElementById('device-id-short').textContent = short + '\u2026';
+  loadCloudData();
+}
+function copyDeviceId() {
+  navigator.clipboard.writeText(DEVICE_ID).then(() => {
+    const el = document.getElementById('device-id-short');
+    const orig = el.textContent;
+    el.textContent = '\u2713 Kopiert!';
+    setTimeout(() => el.textContent = orig, 2000);
+  });
+}
+function importDeviceId() {
+  const newId = prompt('Ger\u00e4te-ID einf\u00fcgen (von anderem Ger\u00e4t kopiert):');
+  if (!newId || newId.trim().length < 10) { alert('Ung\u00fcltige ID'); return; }
+  DEVICE_ID = newId.trim().toLowerCase();
+  localStorage.setItem('suno_device_id', DEVICE_ID);
+  initDeviceBar();
+  alert('\u2713 Ger\u00e4te-ID \u00fcbernommen \u2013 deine Daten werden geladen.');
+}
+
+// ── SUPABASE FETCH ────────────────────────────────────────────
+async function sbFetch(path, method='GET', body=null) {
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : ''
+  };
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SB_URL + path, opts);
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.message || r.status); }
+  return r.status === 204 ? null : r.json();
+}
 
 // ── MODAL HELPERS ────────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('visible'); }
