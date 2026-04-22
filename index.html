@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7dd4c0">
+<title>Suno Prompt Builder</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/x-icon" href="./favicon.ico">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#8a9aaa;--surface:#9aaaba;--surface2:#7a8a9a;
+  --border:#6a7a8a;--border2:#5a6a7a;
+  --text:#f0f4f8;--text2:#d0dce8;--text3:#a0b0c0;
+  --accent:#7dd4c0;--accent2:#50b0a0;
+  --warm:#e08060;--warm2:#a05030;--green:#70b880;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+
+/* ── UPDATE BANNER ── */
+#update-banner{display:none;background:#2a4a3a;border-bottom:1px solid var(--accent2);
+  padding:8px 20px;font-size:11px;color:var(--accent);align-items:center;gap:10px}
+#update-banner.visible{display:flex}
+#update-banner button{background:var(--accent);color:#1a3030;border:none;border-radius:4px;
+  padding:4px 12px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
+
+/* ── HEADER ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100}
+.logo-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent)}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-left:8px}
+.version-tag{font-size:9px;color:var(--text3);border:1px solid var(--border2);
+  border-radius:3px;padding:1px 5px;margin-left:6px}
+.header-right{display:flex;gap:12px;align-items:center}
+.toggle-wrap{display:flex;align-items:center;gap:6px}
+.toggle-label{font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:10px;cursor:pointer;transition:.2s}
+.toggle-track::before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;
+  background:var(--text3);border-radius:50%;transition:.2s}
+.toggle input:checked~.toggle-track{background:var(--warm2);border-color:var(--warm)}
+.toggle input:checked~.toggle-track::before{transform:translateX(16px);background:var(--warm)}
+
+/* ── DEVICE BAR ── */
+#device-bar{background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:5px 20px;display:flex;align-items:center;gap:10px;font-size:10px;color:var(--text3)}
+#device-id-short{font-family:'DM Mono',monospace;color:var(--accent2);font-size:10px;letter-spacing:.5px}
+.device-btn{background:none;border:1px solid var(--border2);border-radius:4px;
+  padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);
+  cursor:pointer;transition:all .15s;white-space:nowrap}
+.device-btn:hover{border-color:var(--accent2);color:var(--accent)}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
+  align-items:center;justify-content:center;padding:20px}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;max-width:380px;width:100%}
+.modal h3{font-family:'Playfair Display',serif;color:var(--accent);margin-bottom:6px;font-size:16px}
+.modal p{font-size:11px;color:var(--text2);margin-bottom:16px;line-height:1.6}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;
+  padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
+  outline:none;margin-bottom:10px;transition:border-color .15s}
+.modal input:focus{border-color:var(--accent2)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.modal-msg{font-size:11px;min-height:18px;margin-bottom:8px}
+.modal-msg.ok{color:var(--green)}
+.modal-msg.err{color:var(--warm)}
+
+/* ── SUMMARY BAR ── */
+.summary-bar{background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:6px 20px;font-size:10px;color:var(--text3);
+  min-height:30px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sum-tag{background:var(--border2);color:var(--accent);border-radius:2px;padding:1px 6px;font-size:10px}
+.sum-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 15px;font-size:11px;cursor:pointer;white-space:nowrap;color:var(--text3);
+  border-right:1px solid var(--border);display:flex;align-items:center;gap:6px;
+  transition:color .15s,background .15s;font-family:'DM Mono',monospace;user-select:none;flex-shrink:0}
+.tab:hover{color:var(--text2);background:var(--surface2)}
+.tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+.tab-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .2s}
+.tab.active .tab-dot{background:var(--accent)}
+.tab.done .tab-dot{background:var(--green)}
+
+/* ── TAB CONTENT ── */
+.tab-content{display:none;padding:18px;max-width:800px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* ── BANNERS ── */
+.community-banner{display:none;background:rgba(212,114,74,.08);border:1px solid var(--warm2);
+  border-radius:6px;padding:8px 13px;font-size:11px;color:var(--warm);margin-bottom:14px}
+.community-banner.visible{display:block}
+.hint-box{background:rgba(125,212,192,.08);border:1px solid var(--accent2);
+  border-radius:6px;padding:10px 14px;font-size:11px;color:var(--accent);
+  margin-bottom:14px;line-height:1.7}
+.hint-box strong{color:var(--text2)}
+.preset-banner{display:none;background:rgba(125,212,192,.06);border:1px solid var(--border2);
+  border-radius:6px;padding:7px 13px;font-size:11px;color:var(--text2);
+  margin-bottom:10px;align-items:center;gap:8px}
+.preset-banner.visible{display:flex}
+.preset-dismiss{margin-left:auto;cursor:pointer;color:var(--text3);font-size:16px;line-height:1}
+.preset-dismiss:hover{color:var(--warm)}
+
+/* ── SECTIONS ── */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.section-header{padding:11px 15px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:background .15s}
+.section-header:hover{background:var(--surface2)}
+.section:not(.collapsed) .section-header{border-bottom-color:var(--border)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2)}
+.section-arrow{color:var(--text3);font-size:10px;transition:transform .2s}
+.section.collapsed .section-arrow{transform:rotate(-90deg)}
+.section-body{padding:13px 15px}
+.section.collapsed .section-body{display:none}
+
+/* ── SUB LABELS ── */
+.sub-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);
+  margin-bottom:7px;margin-top:13px}
+.sub-label:first-child{margin-top:0}
+
+/* ── CHIP SEARCH ── */
+.chip-search-row{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.chip-search{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
+  padding:5px 10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);
+  outline:none;flex:1;transition:border-color .15s}
+.chip-search::placeholder{color:var(--text3)}
+.chip-search:focus{border-color:var(--accent2)}
+.chip-search-clear{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px}
+.chip-search-clear:hover{color:var(--warm)}
+
+/* ── CHIP CATEGORIES ── */
+.chip-cat-label{width:100%;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--accent2);
+  margin-bottom:5px;margin-top:9px;display:flex;align-items:center;gap:6px}
+.chip-cat-label:first-child{margin-top:0}
+.chip-cat-label::after{content:'';flex:1;height:1px;background:var(--border2);opacity:.4}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.chip{border:1px solid var(--border2);border-radius:4px;padding:5px 11px;font-size:11px;
+  cursor:pointer;background:var(--surface2);color:var(--text2);
+  font-family:'DM Mono',monospace;transition:all .15s;line-height:1;
+  -webkit-tap-highlight-color:transparent}
+.chip:hover{border-color:var(--accent2);color:var(--text)}
+.chip.active{background:var(--accent);color:#1a3030;border-color:var(--accent);font-weight:500}
+.chip.warm-chip.active{background:var(--warm);border-color:var(--warm);color:#fff}
+.chip.custom{border-style:dashed}
+.chip.hidden{display:none!important}
+
+/* ── ADD ROW ── */
+.add-row{display:flex;gap:6px;margin-top:9px;align-items:center}
+.add-row input,.solo-input,.excl-input{background:var(--surface2);border:1px solid var(--border2);
+  border-radius:4px;padding:5px 11px;font-size:11px;font-family:'DM Mono',monospace;
+  color:var(--text);outline:none;flex:1;min-width:0;transition:border-color .15s}
+.add-row input::placeholder,.solo-input::placeholder,.excl-input::placeholder{color:var(--text3)}
+.add-row input:focus,.solo-input:focus{border-color:var(--accent2)}
+.excl-input:focus{border-color:var(--warm2)}
+.add-row button{background:none;border:1px dashed var(--border2);border-radius:4px;padding:5px 11px;
+  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--text3);transition:all .15s;white-space:nowrap}
+.add-row button:hover{border-color:var(--accent2);color:var(--accent)}
+
+/* ── EXCLUDE ── */
+.exclude-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;padding:7px;
+  border:1px dashed var(--border2);border-radius:6px;background:rgba(160,80,48,.06);align-items:center}
+.exclude-chip{border:1px solid var(--warm2);border-radius:4px;padding:4px 9px;font-size:11px;
+  background:rgba(160,80,48,.1);color:var(--warm);font-family:'DM Mono',monospace;
+  display:flex;align-items:center;gap:5px}
+.excl-del{color:var(--warm2);cursor:pointer;font-size:14px;line-height:1}
+.excl-del:hover{color:var(--warm)}
+.excl-add-row{display:flex;gap:6px;margin-top:7px;align-items:center}
+.excl-add-btn{background:none;border:1px dashed var(--warm2);border-radius:4px;padding:5px 10px;
+  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--warm2);transition:all .15s;white-space:nowrap}
+.excl-add-btn:hover{border-color:var(--warm);color:var(--warm)}
+
+/* ── STRUKTUR ── */
+.struktur-area{display:flex;flex-wrap:wrap;gap:5px;padding:10px;
+  border:1px dashed var(--border2);border-radius:6px;min-height:46px;
+  margin-bottom:10px;background:var(--surface2)}
+.sblock{background:var(--surface);border:1px solid var(--border2);border-radius:4px;
+  padding:5px 9px;font-size:11px;color:var(--accent);display:flex;align-items:center;gap:7px}
+.sblock .del{color:var(--text3);cursor:pointer;font-size:14px;line-height:1;transition:color .15s}
+.sblock .del:hover{color:var(--warm)}
+.add-blocks{display:flex;flex-wrap:wrap;gap:5px}
+.add-block-btn{border:1px dashed var(--border2);border-radius:4px;padding:4px 9px;font-size:11px;
+  cursor:pointer;background:none;font-family:'DM Mono',monospace;color:var(--text3);transition:all .15s}
+.add-block-btn:hover{border-color:var(--accent2);color:var(--accent);background:var(--surface2)}
+.add-block-btn.solo-btn{border-color:rgba(125,212,192,.3);color:var(--accent2)}
+.add-block-btn.solo-btn:hover{border-color:var(--accent);color:var(--accent)}
+.solo-input-row{display:flex;gap:6px;margin-top:7px;align-items:center}
+.solo-add-btn{background:none;border:1px dashed var(--accent2);border-radius:4px;padding:5px 11px;
+  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--accent2);transition:all .15s;white-space:nowrap}
+.solo-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── TEXTAREA ── */
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;
+  padding:11px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
+  resize:vertical;min-height:78px;outline:none;transition:border-color .15s;line-height:1.6}
+textarea::placeholder{color:var(--text3)}
+textarea:focus{border-color:var(--accent2)}
+
+/* ── NAV ROW ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;
+  margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+.btn{padding:9px 18px;font-family:'DM Mono',monospace;font-size:12px;
+  border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:.5px;border:none}
+.btn-primary{background:var(--accent);color:var(--bg);font-weight:500}
+.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-secondary:hover{border-color:var(--text2);color:var(--text)}
+.btn-generate{background:var(--warm);color:#fff;font-weight:500}
+.btn-generate:hover{background:#c06040}
+
+/* ── OUTPUT ── */
+.out-grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:640px){.out-grid{grid-template-columns:1fr 1fr}}
+.out-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);
+  margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.out-label .badge{background:var(--surface2);border:1px solid var(--border2);border-radius:3px;
+  padding:1px 5px;font-size:9px;color:var(--accent);letter-spacing:1px}
+.output-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:13px;font-size:12px;line-height:1.8;min-height:90px;
+  white-space:pre-wrap;word-break:break-word;color:var(--text);margin-bottom:7px;
+  font-family:'DM Mono',monospace}
+.copy-btn{width:100%;padding:10px;background:var(--surface);border:1px solid var(--border2);
+  border-radius:5px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;
+  justify-content:center;gap:7px;letter-spacing:.5px}
+.copy-btn:hover{border-color:var(--accent2);color:var(--accent);background:var(--surface2)}
+.copy-btn.success{border-color:var(--green);color:var(--green);background:rgba(90,138,90,.08)}
+
+/* ── CLOUD SECTION (Prompts & Favoriten) ── */
+.cloud-section{margin-top:18px}
+.cloud-row{display:flex;gap:8px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
+.cloud-input{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
+  padding:7px 11px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);
+  outline:none;flex:1;min-width:160px;transition:border-color .15s}
+.cloud-input:focus{border-color:var(--accent2)}
+.cloud-input::placeholder{color:var(--text3)}
+.cloud-btn{padding:7px 14px;font-family:'DM Mono',monospace;font-size:11px;border-radius:4px;
+  cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
+.cloud-btn.save{background:var(--accent);color:#1a3030;font-weight:500}
+.cloud-btn.save:hover{background:var(--accent2)}
+.cloud-btn.fav{background:rgba(125,212,192,.15);border:1px solid var(--accent2);color:var(--accent);font-weight:500}
+.cloud-btn.fav:hover{background:rgba(125,212,192,.25)}
+.cloud-btn.del-btn{background:none;border:1px solid var(--warm2);color:var(--warm2);font-size:10px;padding:5px 9px}
+.cloud-btn.del-btn:hover{border-color:var(--warm);color:var(--warm)}
+.cloud-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}
+.cloud-item{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;
+  padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s}
+.cloud-item:hover{border-color:var(--accent2)}
+.cloud-item-name{flex:1;font-size:11px;color:var(--text2)}
+.cloud-item-date{font-size:9px;color:var(--text3)}
+.cloud-empty{font-size:11px;color:var(--text3);font-style:italic;padding:6px 0}
+.cloud-status{font-size:10px;min-height:16px;margin-bottom:6px}
+.cloud-status.ok{color:var(--green)}
+.cloud-status.err{color:var(--warm)}
+.login-hint{font-size:11px;color:var(--text3);font-style:italic;padding:10px 0}
+
+/* ── SELECT ── */
+select{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
+  padding:5px 9px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);outline:none}
+</style>
+</head>
+<body>
+
+<!-- UPDATE BANNER -->
+<div id="update-banner">
+  <span id="update-msg">🔄 Neue Version verfügbar</span>
+  <button onclick="location.reload(true)">Jetzt laden</button>
+  <span style="margin-left:auto;cursor:pointer;font-size:16px" onclick="document.getElementById('update-banner').classList.remove('visible')">✕</span>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <span class="logo-title">Suno</span>
+    <span class="logo-sub">Prompt Builder</span>
+    <span class="version-tag" id="ver-tag">v2.1</span>
+  </div>
+  <div class="header-right">
+    <div class="toggle-wrap">
+      <span class="toggle-label">Community</span>
+      <label class="toggle"><input type="checkbox" id="community-toggle" onchange="toggleCommunity()"><span class="toggle-track"></span></label>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label">Instrumental</span>
+      <label class="toggle"><input type="checkbox" id="instrumental-toggle" onchange="toggleInstrumental()"><span class="toggle-track"></span></label>
+    </div>
+  </div>
+</div>
+
+<!-- DEVICE BAR -->
+<div id="device-bar">
+  <span>Gerät:</span>
+  <span id="device-id-short">–</span>
+  <button class="device-btn" onclick="copyDeviceId()" title="Geräte-ID kopieren">📋 ID kopieren</button>
+  <button class="device-btn" onclick="importDeviceId()" title="ID von anderem Gerät übernehmen">🔄 ID importieren</button>
+</div>
+
+<!-- SAVE PROMPT MODAL -->
+<div class="modal-overlay" id="save-prompt-modal">
+  <div class="modal">
+    <h3>Prompt speichern</h3>
+    <p>Name für diesen Prompt:</p>
+    <input type="text" id="save-prompt-name" placeholder='z.B. "Folk Abschlussgruppe"' onkeydown="if(event.key==='Enter')doSavePrompt()">
+    <div class="modal-msg" id="save-prompt-msg"></div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" style="font-size:11px;padding:7px 14px" onclick="closeModal('save-prompt-modal')">Abbrechen</button>
+      <button class="btn btn-primary" style="font-size:11px;padding:7px 14px" onclick="doSavePrompt()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE FAVORITE MODAL -->
+<div class="modal-overlay" id="save-fav-modal">
+  <div class="modal">
+    <h3>Favorit speichern</h3>
+    <p>Name für dieses Genre/Instrument/Stil-Preset:</p>
+    <input type="text" id="save-fav-name" placeholder='z.B. "Mein Folk-Setup"' onkeydown="if(event.key==='Enter')doSaveFavorite()">
+    <div class="modal-msg" id="save-fav-msg"></div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" style="font-size:11px;padding:7px 14px" onclick="closeModal('save-fav-modal')">Abbrechen</button>
+      <button class="btn btn-primary" style="font-size:11px;padding:7px 14px" onclick="doSaveFavorite()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar" id="summary-bar">
+  <span style="color:var(--text3);font-size:10px;letter-spacing:1px">NOCH NICHTS AUSGEWÄHLT</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="goToTab(0)"><span class="tab-dot"></span>01 Style</div>
+  <div class="tab" onclick="goToTab(1)"><span class="tab-dot"></span>02 Kanten</div>
+  <div class="tab" onclick="goToTab(2)"><span class="tab-dot"></span>03 Struktur</div>
+  <div class="tab" onclick="goToTab(3)"><span class="tab-dot"></span>04 Lyrics</div>
+  <div class="tab" onclick="goToTab(4)"><span class="tab-dot"></span>✦ Output</div>
+  <div class="tab" onclick="goToTab(5)"><span class="tab-dot"></span>☁ Gespeichert</div>
+</div>
+
+<!-- ===== TAB 1: STYLE ===== -->
+<div class="tab-content active" id="tab-0">
+  <div class="community-banner" id="banner-0">♫ Community Singing aktiv – Gemeinschafts-Chips vorausgewählt</div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Genre & Basis</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chip-search-row">
+        <input class="chip-search" type="text" placeholder="Genre suchen..." oninput="filterPool('genre-pool',this.value)">
+        <button class="chip-search-clear" onclick="clearSearch(this,'genre-pool')">✕</button>
+      </div>
+      <div class="preset-banner" id="preset-banner">
+        <span id="preset-text"></span>
+        <span class="preset-dismiss" onclick="this.parentElement.classList.remove('visible')">✕</span>
+      </div>
+      <div id="genre-pool">
+        <div class="chip-cat-label">Akustisch · Folk</div>
+        <div class="chips">
+          <span class="chip" onclick="genreChip(this)">Akustisch</span>
+          <span class="chip" onclick="genreChip(this)">Folk</span>
+          <span class="chip" onclick="genreChip(this)">Singer-Songwriter</span>
+          <span class="chip" onclick="genreChip(this)">Americana</span>
+          <span class="chip" onclick="genreChip(this)">Celtic Folk</span>
+        </div>
+        <div class="chip-cat-label">Blues · Jazz · Gospel</div>
+        <div class="chips">
+          <span class="chip" onclick="genreChip(this)">Funky Blues</span>
+          <span class="chip" onclick="genreChip(this)">Blues</span>
+          <span class="chip" onclick="genreChip(this)">Jazz</span>
+          <span class="chip" onclick="genreChip(this)">Gospel</span>
+          <span class="chip" onclick="genreChip(this)">Soul</span>
+        </div>
+        <div class="chip-cat-label">Meditativ · Heilsam</div>
+        <div class="chips">
+          <span class="chip" onclick="genreChip(this)">Meditativ</span>
+          <span class="chip" onclick="genreChip(this)">Ambient</span>
+          <span class="chip" onclick="genreChip(this)">Drone</span>
+          <span class="chip" onclick="genreChip(this)">World / Ethnic</span>
+        </div>
+        <div id="genre-custom-area" class="chips" style="margin-top:6px"></div>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigenes Genre..." id="genre-input" onkeydown="if(event.key==='Enter')addGenreCustom()">
+        <button onclick="addGenreCustom()">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Instrumente</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chip-search-row">
+        <input class="chip-search" type="text" placeholder="Instrument suchen..." oninput="filterPool('instrumente-pool',this.value)">
+        <button class="chip-search-clear" onclick="clearSearch(this,'instrumente-pool')">✕</button>
+      </div>
+      <div id="instrumente-pool">
+        <div class="chip-cat-label">Saiten</div>
+        <div class="chips">
+          <span class="chip" onclick="toggleChip(this)">Fingerpicking Guitar</span>
+          <span class="chip" onclick="toggleChip(this)">Steel String Guitar</span>
+          <span class="chip" onclick="toggleChip(this)">Classical Guitar</span>
+          <span class="chip" onclick="toggleChip(this)">12-String Guitar</span>
+          <span class="chip" onclick="toggleChip(this)">Banjo</span>
+          <span class="chip" onclick="toggleChip(this)">Mandolin</span>
+          <span class="chip" onclick="toggleChip(this)">Ukulele</span>
+        </div>
+        <div class="chip-cat-label">Tasten · Bläser</div>
+        <div class="chips">
+          <span class="chip" onclick="toggleChip(this)">Piano</span>
+          <span class="chip" onclick="toggleChip(this)">Hammond Organ</span>
+          <span class="chip" onclick="toggleChip(this)">Accordion</span>
+          <span class="chip" onclick="toggleChip(this)">Harmonica</span>
+          <span class="chip" onclick="toggleChip(this)">Flute</span>
+          <span class="chip" onclick="toggleChip(this)">Tin Whistle</span>
+        </div>
+        <div class="chip-cat-label">Bass · Schlagzeug</div>
+        <div class="chips">
+          <span class="chip" onclick="toggleChip(this)">Upright Bass</span>
+          <span class="chip" onclick="toggleChip(this)">Electric Bass</span>
+          <span class="chip" onclick="toggleChip(this)">Brushed Drums</span>
+          <span class="chip" onclick="toggleChip(this)">Cajon</span>
+          <span class="chip" onclick="toggleChip(this)">Hand Drum</span>
+          <span class="chip" onclick="toggleChip(this)">Frame Drum</span>
+        </div>
+        <div class="chip-cat-label">Streicher · Drones · Besonderes</div>
+        <div class="chips">
+          <span class="chip" onclick="toggleChip(this)">Cello</span>
+          <span class="chip" onclick="toggleChip(this)">Violin</span>
+          <span class="chip" onclick="toggleChip(this)">Viola</span>
+          <span class="chip" onclick="toggleChip(this)">Shruti Box</span>
+          <span class="chip" onclick="toggleChip(this)">Singing Bowl</span>
+          <span class="chip" onclick="toggleChip(this)">Choir / Voices</span>
+        </div>
+        <div id="instrumente-custom-area" class="chips" style="margin-top:6px"></div>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigenes Instrument..." id="instrumente-input" onkeydown="if(event.key==='Enter')addCustomTo('instrumente-custom-area','instrumente-input')">
+        <button onclick="addCustomTo('instrumente-custom-area','instrumente-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Spielstil</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="spielstil">
+        <span class="chip" onclick="toggleChip(this)">Fingerstyle</span>
+        <span class="chip" onclick="toggleChip(this)">Fingerpicking</span>
+        <span class="chip" onclick="toggleChip(this)">Clawhammer</span>
+        <span class="chip" onclick="toggleChip(this)">Strumming</span>
+        <span class="chip" onclick="toggleChip(this)">Flatpicking</span>
+        <span class="chip" onclick="toggleChip(this)">Slide Guitar</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigener Spielstil..." id="spielstil-input" onkeydown="if(event.key==='Enter')addCustomTo('spielstil','spielstil-input')">
+        <button onclick="addCustomTo('spielstil','spielstil-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="community-banner" id="banner-instrumental-0" style="background:rgba(90,138,90,.08);border-color:#3a5a3a;color:#5a8a5a">
+    🎸 Instrumental Modus aktiv – "no vocals" gesetzt, Stimme deaktiviert
+  </div>
+
+  <div class="section" id="stimme-section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Stimme & Gesang</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="stimme">
+        <span class="chip" onclick="toggleChip(this)">Male voice</span>
+        <span class="chip" onclick="toggleChip(this)">Female voice</span>
+        <span class="chip" onclick="toggleChip(this)">Raspy</span>
+        <span class="chip" onclick="toggleChip(this)">Warm</span>
+        <span class="chip" onclick="toggleChip(this)">Weathered</span>
+        <span class="chip" onclick="toggleChip(this)">Communal / choir</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigene Stimmeigenschaft..." id="stimme-input" onkeydown="if(event.key==='Enter')addCustomTo('stimme','stimme-input')">
+        <button onclick="addCustomTo('stimme','stimme-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAVORITEN LADEN -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">⭐ Favorit laden</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div id="fav-load-list"><div class="cloud-empty">Lade Favoriten...</div></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <span style="font-size:10px;color:var(--text3)">Schritt 1 / 4</span>
+    <button class="btn btn-primary" onclick="goToTab(1)">Weiter →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 2: KANTEN & RAUM ===== -->
+<div class="tab-content" id="tab-1">
+  <div class="community-banner" id="banner-1">♫ Community Singing aktiv – Raum auf "Kleiner Kreis" voreingestellt</div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Harmonik</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="harmonik">
+        <span class="chip" onclick="toggleChip(this)">diatonic / consonant</span>
+        <span class="chip" onclick="toggleChip(this)">modal / pentatonic</span>
+        <span class="chip" onclick="toggleChip(this)">jazz harmony / chromatic</span>
+        <span class="chip" onclick="toggleChip(this)">tritone substitutions</span>
+        <span class="chip" onclick="toggleChip(this)">modal interchange</span>
+        <span class="chip" onclick="toggleChip(this)">unresolved tension</span>
+        <span class="chip" onclick="toggleChip(this)">dissonant / atonal</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigene Harmonik..." id="harmonik-input" onkeydown="if(event.key==='Enter')addCustomTo('harmonik','harmonik-input')">
+        <button onclick="addCustomTo('harmonik','harmonik-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Produktion & Textur</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="produktion">
+        <span class="chip" onclick="toggleChip(this)">polished / produced</span>
+        <span class="chip" onclick="toggleChip(this)">lo-fi</span>
+        <span class="chip" onclick="toggleChip(this)">raw / gritty</span>
+        <span class="chip" onclick="toggleChip(this)">room sound</span>
+        <span class="chip" onclick="toggleChip(this)">dry recording</span>
+        <span class="chip" onclick="toggleChip(this)">imperfect / unrehearsed</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigene Textur..." id="produktion-input" onkeydown="if(event.key==='Enter')addCustomTo('produktion','produktion-input')">
+        <button onclick="addCustomTo('produktion','produktion-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Raumgefühl</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="sub-label">Intimitäts-Raum</div>
+      <div class="chips" id="raum">
+        <span class="chip warm-chip" onclick="toggleChip(this)">Kleiner Kreis / Wohnzimmer</span>
+        <span class="chip warm-chip" onclick="toggleChip(this)">Intime Gruppe / Krankenhausflur</span>
+        <span class="chip warm-chip" onclick="toggleChip(this)">Lagerfeuer / draußen</span>
+        <span class="chip warm-chip" onclick="toggleChip(this)">Kleine Kapelle</span>
+        <span class="chip warm-chip" onclick="toggleChip(this)">Studio / trocken</span>
+      </div>
+      <div class="sub-label">Feeling</div>
+      <div class="chips" id="feeling">
+        <span class="chip" onclick="toggleChip(this)">late-night session</span>
+        <span class="chip" onclick="toggleChip(this)">deeply intimate</span>
+        <span class="chip" onclick="toggleChip(this)">healing</span>
+        <span class="chip" onclick="toggleChip(this)">communal warmth</span>
+        <span class="chip" onclick="toggleChip(this)">slightly uncomfortable</span>
+        <span class="chip" onclick="toggleChip(this)">unrehearsed</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigene Atmosphäre..." id="feeling-input" onkeydown="if(event.key==='Enter')addCustomTo('feeling','feeling-input')">
+        <button onclick="addCustomTo('feeling','feeling-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Suno-Kontrolle</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="kontrolle">
+        <span class="chip" onclick="toggleChip(this)">no hall reverb</span>
+        <span class="chip" onclick="toggleChip(this)">no key change</span>
+        <span class="chip" onclick="toggleChip(this)">no modulation</span>
+        <span class="chip" onclick="toggleChip(this)">stay in minor</span>
+        <span class="chip" onclick="toggleChip(this)">slow tempo</span>
+        <span class="chip" onclick="toggleChip(this)">no electric instruments</span>
+        <span class="chip" onclick="toggleChip(this)">no stadium sound</span>
+        <span class="chip" onclick="toggleChip(this)">close-miked voices</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigene Einschränkung..." id="kontrolle-input" onkeydown="if(event.key==='Enter')addCustomTo('kontrolle','kontrolle-input')">
+        <button onclick="addCustomTo('kontrolle','kontrolle-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Instrumente ausschließen</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="sub-label" style="margin-bottom:6px">Diese Instrumente dürfen NICHT vorkommen</div>
+      <div class="exclude-chips" id="exclude-container">
+        <span style="color:var(--text3);font-size:10px;font-style:italic">Noch keine Ausschlüsse</span>
+      </div>
+      <div class="excl-add-row">
+        <input class="excl-input" type="text" id="exclude-input" placeholder='z.B. electric guitar, drums...' onkeydown="if(event.key==='Enter')addExclude()">
+        <button class="excl-add-btn" onclick="addExclude()">+ Ausschließen</button>
+      </div>
+      <div style="margin-top:7px;font-size:10px;color:var(--text3)">→ Wird als <em>no [instrument]</em> im Style-Prompt ausgegeben</div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goToTab(0)">← Zurück</button>
+    <button class="btn btn-primary" onclick="goToTab(2)">Weiter →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 3: STRUKTUR ===== -->
+<div class="tab-content" id="tab-2">
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Songaufbau</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="sub-label">Aktuelle Struktur</div>
+      <div class="struktur-area" id="struktur-container">
+        <div class="sblock">[Intro] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+        <div class="sblock">[Verse 1] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+        <div class="sblock">[Chorus] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+        <div class="sblock">[Verse 2] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+        <div class="sblock">[Chorus] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+        <div class="sblock">[Outro] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
+      </div>
+      <div class="sub-label">Standard</div>
+      <div class="add-blocks">
+        <button class="add-block-btn" onclick="addBlock('[Pre-Chorus]')">[Pre-Chorus]</button>
+        <button class="add-block-btn" onclick="addBlock('[Bridge]')">[Bridge]</button>
+        <button class="add-block-btn" onclick="addBlock('[Break]')">[Break]</button>
+        <button class="add-block-btn" onclick="addBlock('[Interlude]')">[Interlude]</button>
+        <button class="add-block-btn" onclick="addBlock('[Verse 3]')">[Verse 3]</button>
+        <button class="add-block-btn" onclick="addBlock('[End]')">[End]</button>
+      </div>
+      <div class="sub-label" style="margin-top:12px">Mantrisch / Meditativ</div>
+      <div class="add-blocks">
+        <button class="add-block-btn" onclick="addBlock('[Mantra]')">[Mantra]</button>
+        <button class="add-block-btn" onclick="addBlock('[Hum]')">[Hum]</button>
+        <button class="add-block-btn" onclick="addBlock('[Drone]')">[Drone]</button>
+        <button class="add-block-btn" onclick="addBlock('[Spoken]')">[Spoken]</button>
+        <button class="add-block-btn" onclick="addBlock('[Whisper]')">[Whisper]</button>
+      </div>
+      <div class="sub-label" style="margin-top:12px">Solo & Improvisation</div>
+      <div class="add-blocks">
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Guitar Solo]')">[Guitar Solo]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Piano Solo]')">[Piano Solo]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Harmonica Solo]')">[Harmonica Solo]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Violin Solo]')">[Violin Solo]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Vocal Improvisation]')">[Vocal Improvisation]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Free Improvisation]')">[Free Improvisation]</button>
+        <button class="add-block-btn solo-btn" onclick="addBlock('[Instrumental Break]')">[Instrumental Break]</button>
+      </div>
+      <div class="solo-input-row" style="margin-top:7px">
+        <input class="solo-input" type="text" id="solo-input" placeholder='Freier Solo-Block, z.B. [Cello Improvisation]...' onkeydown="if(event.key==='Enter')addCustomSolo()">
+        <button class="solo-add-btn" onclick="addCustomSolo()">+ Solo Add</button>
+      </div>
+      <div class="sub-label" style="margin-top:12px">Wiederholen</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+        <select id="repeat-block">
+          <option>[Mantra]</option><option>[Verse]</option><option>[Chorus]</option>
+          <option>[Hum]</option><option>[Drone]</option>
+          <option>[Guitar Solo]</option><option>[Vocal Improvisation]</option>
+        </select>
+        <button class="add-block-btn" onclick="repeatBlock(2)">× 2</button>
+        <button class="add-block-btn" onclick="repeatBlock(3)">× 3</button>
+        <button class="add-block-btn" onclick="repeatBlock(4)">× 4</button>
+        <button class="add-block-btn" onclick="repeatBlock(6)">× 6</button>
+        <button class="add-block-btn" onclick="repeatBlock(8)">× 8</button>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigener Block, z.B. [Klagegesang]..." id="struktur-input" onkeydown="if(event.key==='Enter')addCustomBlock()">
+        <button onclick="addCustomBlock()">+ Add</button>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goToTab(1)">← Zurück</button>
+    <button class="btn btn-primary" onclick="goToTab(3)">Weiter →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 4: LYRICS ===== -->
+<div class="tab-content" id="tab-3">
+  <div class="hint-box">
+    <strong>💡 Suno-Tipp: Deutsche Aussprache von „ja"</strong><br>
+    Suno liest „ja" oft als englisches „ya". Schreibe in deutschen Lyrics <strong>„ya"</strong> statt „ja" für korrekte Aussprache.<br>
+    <span style="color:var(--text3);font-size:10px">Beispiel: „Ya, ich bin hier" statt „Ja, ich bin hier"</span>
+  </div>
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Thema & Kernbotschaft</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="chips" id="thema">
+        <span class="chip" onclick="toggleChip(this)">Heilung</span>
+        <span class="chip" onclick="toggleChip(this)">Verbundenheit</span>
+        <span class="chip" onclick="toggleChip(this)">Trauer</span>
+        <span class="chip" onclick="toggleChip(this)">Aufbruch</span>
+        <span class="chip" onclick="toggleChip(this)">Stille</span>
+        <span class="chip" onclick="toggleChip(this)">Dankbarkeit</span>
+        <span class="chip" onclick="toggleChip(this)">Selbstmitgefühl</span>
+        <span class="chip" onclick="toggleChip(this)">Abschied</span>
+        <span class="chip" onclick="toggleChip(this)">Gemeinschaft</span>
+      </div>
+      <div class="add-row">
+        <input type="text" placeholder="Eigenes Thema..." id="thema-input" onkeydown="if(event.key==='Enter')addCustomTo('thema','thema-input')">
+        <button onclick="addCustomTo('thema','thema-input')">+ Add</button>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Perspektive & Sprache</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="sub-label">Perspektive</div>
+      <div class="chips" id="perspektive">
+        <span class="chip" onclick="toggleChip(this)">Ich-Stimme</span>
+        <span class="chip" onclick="toggleChip(this)">Wir / Gemeinschaft</span>
+        <span class="chip" onclick="toggleChip(this)">Du-Anrede</span>
+        <span class="chip" onclick="toggleChip(this)">unpersönlich / offen</span>
+      </div>
+      <div class="sub-label">Sprache</div>
+      <div class="chips" id="sprache">
+        <span class="chip" onclick="toggleChip(this)">Deutsch</span>
+        <span class="chip" onclick="toggleChip(this)">Englisch</span>
+        <span class="chip" onclick="toggleChip(this)">gemischt DE/EN</span>
+      </div>
+      <div class="sub-label">Reimschema</div>
+      <div class="chips" id="reim">
+        <span class="chip" onclick="toggleChip(this)">AABB</span>
+        <span class="chip" onclick="toggleChip(this)">ABAB</span>
+        <span class="chip" onclick="toggleChip(this)">frei / kein Reim</span>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Stichworte & Idee</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="sub-label">Was soll der Song ausdrücken?</div>
+      <textarea id="ki-input" placeholder='z.B. "Ein Lied für den Abschluss einer Reha-Gruppe. Dankbarkeit, gemeinsam getragene Zeit, Aufbruch mit Zuversicht."'></textarea>
+      <div class="sub-label" style="margin-top:11px">Ton</div>
+      <div class="chips" id="ton">
+        <span class="chip" onclick="toggleChip(this)">nicht zu süßlich</span>
+        <span class="chip" onclick="toggleChip(this)">ehrlich / geerdet</span>
+        <span class="chip" onclick="toggleChip(this)">poetisch / bildhaft</span>
+        <span class="chip" onclick="toggleChip(this)">direkt / einfach</span>
+        <span class="chip" onclick="toggleChip(this)">mehrdeutig / offen</span>
+        <span class="chip" onclick="toggleChip(this)">spirituell / tiefgründig</span>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goToTab(2)">← Zurück</button>
+    <button class="btn btn-generate" onclick="buildAndGoToOutput()">✦ Prompts generieren</button>
+  </div>
+</div>
+
+<!-- ===== TAB 5: OUTPUT ===== -->
+<div class="tab-content" id="tab-4">
+  <div class="out-grid">
+    <div>
+      <div class="out-label">Suno Style-Prompt <span class="badge">→ Style-Feld</span></div>
+      <div class="output-box" id="style-out">–</div>
+      <button class="copy-btn" id="copy-style-btn" onclick="copyOut('style-out','copy-style-btn','📋 Style kopieren')">📋 Style kopieren</button>
+    </div>
+    <div>
+      <div class="out-label">Lyrics-Prompt <span class="badge">→ Claude / ChatGPT</span></div>
+      <div class="output-box" id="lyrics-out">–</div>
+      <button class="copy-btn" id="copy-lyrics-btn" onclick="copyOut('lyrics-out','copy-lyrics-btn','📋 Lyrics-Prompt kopieren')">📋 Lyrics-Prompt kopieren</button>
+    </div>
+  </div>
+
+  <!-- CLOUD: PROMPT SPEICHERN -->
+  <div class="cloud-section">
+    <div class="sub-label">☁ In der Cloud speichern</div>
+    <div id="cloud-save-area">
+      <div class="cloud-row">
+        <input class="cloud-input" type="text" id="prompt-save-name" placeholder='Name, z.B. "Folk Reha-Gruppe"...'>
+        <button class="cloud-btn save" onclick="openSavePromptModal()">💾 Prompt speichern</button>
+        <button class="cloud-btn fav" onclick="openSaveFavModal()">⭐ Favorit speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goToTab(3)">← Zurück</button>
+    <button class="btn btn-generate" onclick="buildAndGoToOutput()">🔄 Neu generieren</button>
+  </div>
+</div>
+
+<!-- ===== TAB 6: GESPEICHERT ===== -->
+<div class="tab-content" id="tab-5">
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">💾 Gespeicherte Prompts</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="cloud-status" id="prompts-status"></div>
+      <div class="cloud-list" id="prompts-list"><div class="cloud-empty">Lade...</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">⭐ Favoriten (Genre/Stil-Presets)</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div class="cloud-status" id="favs-status"></div>
+      <div class="cloud-list" id="favs-list"><div class="cloud-empty">Lade...</div></div>
+    </div>
+  </div>
+  <div style="margin-top:8px;font-size:10px;color:var(--text3)">
+    Klick auf einen Eintrag → Prompt in Output laden. Klick auf ⭐ Favorit → Chips werden gesetzt.
+  </div>
+</div>
+
+<!-- ============================================================ SCRIPT ============================================================ -->
+<script>
+// ── SUPABASE CONFIG ──────────────────────────────────────────
+const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
+const APP_VERSION = '2.1.0';
+
+
+
+// ── MODAL HELPERS ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('visible'); }
+function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+function openSavePromptModal() {
+  const nameInput = document.getElementById('prompt-save-name');
+  document.getElementById('save-prompt-name').value = nameInput ? nameInput.value : '';
+  document.getElementById('save-prompt-msg').textContent='';
+  document.getElementById('save-prompt-msg').className='modal-msg';
+  openModal('save-prompt-modal');
+}
+
+function openSaveFavModal() {
+  document.getElementById('save-fav-name').value='';
+  document.getElementById('save-fav-msg').textContent='';
+  document.getElementById('save-fav-msg').className='modal-msg';
+  openModal('save-fav-modal');
+}
+
+// ── CLOUD: PROMPTS ───────────────────────────────────────────
+async function doSavePrompt() {
+  const name = document.getElementById('save-prompt-name').value.trim();
+  const msg = document.getElementById('save-prompt-msg');
+  if (!name) { msg.textContent='Bitte einen Namen eingeben'; msg.className='modal-msg err'; return; }
+  const style = document.getElementById('style-out').textContent;
+  const lyrics = document.getElementById('lyrics-out').textContent;
+  if (style === '–' || !style) { msg.textContent='Erst Prompts generieren (Tab Output)'; msg.className='modal-msg err'; return; }
+  msg.textContent='Speichere...'; msg.className='modal-msg';
+  try {
+        await sbFetch('/rest/v1/prompts','POST',{
+      device_id: DEVICE_ID, name, style_prompt: style, lyrics_prompt: lyrics
+    });
+    msg.textContent='✓ Gespeichert!'; msg.className='modal-msg ok';
+    setTimeout(()=>closeModal('save-prompt-modal'), 1200);
+    loadPromptsList();
+  } catch(e) { msg.textContent='Fehler: '+e.message; msg.className='modal-msg err'; }
+}
+
+async function loadPromptsList() {
+  const list = document.getElementById('prompts-list');
+  list.innerHTML='<div class="cloud-empty">Lade...</div>';
+  try {
+        const data = await sbFetch('/rest/v1/prompts?select=*&order=created_at.desc&device_id=eq.'+DEVICE_ID, 'GET');
+    if (!data || data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine gespeicherten Prompts</div>'; return; }
+    list.innerHTML='';
+    data.forEach(p => {
+      const d = document.createElement('div');
+      d.className='cloud-item';
+      d.innerHTML=`<span class="cloud-item-name">${escHtml(p.name)}</span>
+        <span class="cloud-item-date">${new Date(p.created_at).toLocaleDateString('de-DE')}</span>
+        <button class="cloud-btn del-btn" onclick="event.stopPropagation();deletePrompt('${p.id}')">✕</button>`;
+      d.onclick=()=>loadPromptIntoOutput(p);
+      list.appendChild(d);
+    });
+  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; }
+}
+
+function loadPromptIntoOutput(p) {
+  document.getElementById('style-out').textContent = p.style_prompt;
+  document.getElementById('lyrics-out').textContent = p.lyrics_prompt;
+  goToTab(4);
+}
+
+async function deletePrompt(id) {
+  if (!confirm('Prompt löschen?')) return;
+  try {
+        await sbFetch('/rest/v1/prompts?id=eq.'+id,'DELETE');
+    loadPromptsList();
+  } catch(e) { alert('Fehler: '+e.message); }
+}
+
+// ── CLOUD: FAVORITEN ─────────────────────────────────────────
+function collectCurrentPreset() {
+  return {
+    genre: getActiveTexts('genre-pool'),
+    instrumente: [
+      ...getActiveTexts('instrumente-pool'),
+      ...getActiveTexts('instrumente-custom-area')
+    ],
+    spielstil: getActiveTexts('spielstil'),
+    stimme: getActiveTexts('stimme'),
+    harmonik: getActiveTexts('harmonik'),
+    produktion: getActiveTexts('produktion'),
+    raum: getActiveTexts('raum'),
+    feeling: getActiveTexts('feeling'),
+    kontrolle: getActiveTexts('kontrolle'),
+    excludeList: [...excludeList],
+    customGenre: getActiveTexts('genre-custom-area'),
+  };
+}
+
+async function doSaveFavorite() {
+  const name = document.getElementById('save-fav-name').value.trim();
+  const msg = document.getElementById('save-fav-msg');
+  if (!name) { msg.textContent='Bitte einen Namen eingeben'; msg.className='modal-msg err'; return; }
+  msg.textContent='Speichere...'; msg.className='modal-msg';
+  try {
+        const preset_data = collectCurrentPreset();
+    await sbFetch('/rest/v1/favorites','POST',{
+      device_id: DEVICE_ID, name, preset_data
+    });
+    msg.textContent='✓ Favorit gespeichert!'; msg.className='modal-msg ok';
+    setTimeout(()=>closeModal('save-fav-modal'), 1200);
+    loadFavsList();
+    loadFavLoadList();
+  } catch(e) { msg.textContent='Fehler: '+e.message; msg.className='modal-msg err'; }
+}
+
+async function loadFavsList() {
+  const list = document.getElementById('favs-list');
+  list.innerHTML='<div class="cloud-empty">Lade...</div>';
+  try {
+        const data = await sbFetch('/rest/v1/favorites?select=*&order=created_at.desc&device_id=eq.'+DEVICE_ID,'GET');
+    if (!data||data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine Favoriten</div>'; return; }
+    list.innerHTML='';
+    data.forEach(f=>{
+      const d=document.createElement('div');
+      d.className='cloud-item';
+      d.innerHTML=`<span class="cloud-item-name">⭐ ${escHtml(f.name)}</span>
+        <span class="cloud-item-date">${new Date(f.created_at).toLocaleDateString('de-DE')}</span>
+        <button class="cloud-btn del-btn" onclick="event.stopPropagation();deleteFavorite('${f.id}')">✕</button>`;
+      d.onclick=()=>applyFavorite(f.preset_data);
+      list.appendChild(d);
+    });
+  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; }
+}
+
+async function loadFavLoadList() {
+  const list = document.getElementById('fav-load-list');
+  list.innerHTML='<div class="cloud-empty">Lade...</div>';
+  try {
+        const data = await sbFetch('/rest/v1/favorites?select=id,name,preset_data&order=created_at.desc&device_id=eq.'+DEVICE_ID,'GET');
+    if (!data||data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine Favoriten gespeichert</div>'; return; }
+    list.innerHTML='';
+    data.forEach(f=>{
+      const d=document.createElement('div');
+      d.className='cloud-item';
+      d.innerHTML=`<span class="cloud-item-name">⭐ ${escHtml(f.name)}</span>`;
+      d.onclick=()=>{ applyFavorite(f.preset_data); goToTab(0); };
+      list.appendChild(d);
+    });
+  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler</div>'; }
+}
+
+function applyFavorite(preset) {
+  // Alle Chips deselektieren
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  excludeList=[];
+  // Genre
+  if (preset.genre) setActiveByText('genre-pool', preset.genre);
+  // Custom Genre
+  if (preset.customGenre) {
+    preset.customGenre.forEach(t=>{ if(!getChipByText('genre-custom-area',t)) addCustomChipTo('genre-custom-area',t,true); });
+  }
+  // Instrumente
+  if (preset.instrumente) {
+    setActiveByText('instrumente-pool', preset.instrumente);
+    setActiveByText('instrumente-custom-area', preset.instrumente);
+  }
+  // Einfache Gruppen
+  const simpleGroups=['spielstil','stimme','harmonik','produktion','raum','feeling','kontrolle','thema'];
+  simpleGroups.forEach(g=>{ if(preset[g]) setActiveByText(g, preset[g]); });
+  // Excludes
+  if (preset.excludeList) { excludeList=[...preset.excludeList]; renderExcludes(); }
+  updateSummary();
+  alert('Favorit "' + (preset.name||'') + '" geladen ✓');
+}
+
+async function deleteFavorite(id) {
+  if (!confirm('Favorit löschen?')) return;
+  try {
+        await sbFetch('/rest/v1/favorites?id=eq.'+id,'DELETE');
+    loadFavsList();
+    loadFavLoadList();
+  } catch(e) { alert('Fehler: '+e.message); }
+}
+
+function loadCloudData() {
+  loadPromptsList();
+  loadFavsList();
+  loadFavLoadList();
+}
+
+// ── VERSION CHECK ────────────────────────────────────────────
+async function checkVersion() {
+  try {
+    const r = await fetch('./version.json?t='+Date.now());
+    const d = await r.json();
+    document.getElementById('ver-tag').textContent='v'+d.version;
+    if (d.version !== APP_VERSION) {
+      document.getElementById('update-msg').textContent=
+        '🔄 Update verfügbar: v'+d.version+' – '+d.changelog;
+      document.getElementById('update-banner').classList.add('visible');
+    }
+  } catch(e) {}
+}
+
+// ── SERVICE WORKER ───────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+// ── TRANSLATIONS ─────────────────────────────────────────────
+const TRANSLATE = {
+  'Akustisch':'acoustic','Meditativ':'meditative','Ambient':'ambient','Drone':'drone',
+  'World / Ethnic':'world, ethnic','Americana':'Americana','Celtic Folk':'Celtic folk',
+  'Funky Blues':'funky blues','Blues':'blues','Jazz':'jazz','Gospel':'gospel','Soul':'soul',
+  'Kleiner Kreis / Wohnzimmer':'small circle of voices, living room, close and intimate, no reverb',
+  'Intime Gruppe / Krankenhausflur':'intimate group, small gathering, close-miked, no hall sound',
+  'Lagerfeuer / draußen':'campfire setting, outdoor, natural acoustics, open air',
+  'Kleine Kapelle':'small chapel, subtle natural reverb, intimate sacred space',
+  'Studio / trocken':'dry studio recording, no reverb, close-miked',
+  'Heilung':'healing','Verbundenheit':'connection, togetherness','Trauer':'grief, mourning',
+  'Aufbruch':'new beginning, departure','Stille':'silence, stillness','Dankbarkeit':'gratitude',
+  'Selbstmitgefühl':'self-compassion','Abschied':'farewell, goodbye','Gemeinschaft':'community, togetherness',
+  'Ich-Stimme':'first person singular','Wir / Gemeinschaft':'first person plural, communal voice',
+  'Du-Anrede':'second person address','unpersönlich / offen':'open, unspecific perspective',
+  'Deutsch':'German','Englisch':'English','gemischt DE/EN':'mixed German and English',
+  'AABB':'rhyme scheme AABB','ABAB':'rhyme scheme ABAB','frei / kein Reim':'free verse, no rhyme',
+  'nicht zu süßlich':'not too sweet, avoid sentimentality','ehrlich / geerdet':'honest, grounded',
+  'poetisch / bildhaft':'poetic, imagery-rich','direkt / einfach':'direct, simple language',
+  'mehrdeutig / offen':'ambiguous, open to interpretation','spirituell / tiefgründig':'spiritual, profound',
+};
+
+// ── GENRE PRESETS ────────────────────────────────────────────
+const GENRE_PRESETS = {
+  'Akustisch':['Fingerpicking Guitar','Upright Bass','Brushed Drums'],
+  'Folk':['Steel String Guitar','Upright Bass','Tin Whistle','Cajon'],
+  'Singer-Songwriter':['Fingerpicking Guitar','Piano'],
+  'Americana':['Steel String Guitar','Upright Bass','Harmonica','Banjo'],
+  'Celtic Folk':['Tin Whistle','Violin','Mandolin','Frame Drum'],
+  'Funky Blues':['Electric Bass','Hammond Organ','Steel String Guitar','Brushed Drums'],
+  'Blues':['Steel String Guitar','Harmonica','Upright Bass'],
+  'Jazz':['Piano','Upright Bass','Brushed Drums'],
+  'Gospel':['Piano','Choir / Voices','Hammond Organ'],
+  'Soul':['Piano','Electric Bass','Brushed Drums','Choir / Voices'],
+  'Meditativ':['Shruti Box','Singing Bowl','Cello'],
+  'Ambient':['Shruti Box','Singing Bowl'],
+  'Drone':['Shruti Box','Singing Bowl','Cello'],
+  'World / Ethnic':['Frame Drum','Shruti Box','Flute'],
+};
+
+// ── STATE ────────────────────────────────────────────────────
+let excludeList=[];
+
+// ── CHIP UTILS ───────────────────────────────────────────────
+function toggleChip(el){ el.classList.toggle('active'); updateSummary(); }
+
+function genreChip(el){
+  el.classList.toggle('active');
+  updateSummary();
+  if(el.classList.contains('active')){
+    const p=GENRE_PRESETS[el.textContent.trim()];
+    if(p) applyInstrPreset(el.textContent.trim(),p);
+  }
+}
+
+function applyInstrPreset(label, list){
+  let added=[];
+  list.forEach(name=>{
+    const chip=[...document.querySelectorAll('#instrumente-pool .chip')].find(c=>c.textContent.trim()===name);
+    if(chip&&!chip.classList.contains('active')){ chip.classList.add('active'); added.push(name); }
+  });
+  if(added.length){
+    document.getElementById('preset-text').textContent='🎸 Preset für '+label+': '+added.join(', ')+' (überschreibbar)';
+    document.getElementById('preset-banner').classList.add('visible');
+  }
+  updateSummary();
+}
+
+function filterPool(poolId, q){
+  document.querySelectorAll('#'+poolId+' .chip').forEach(c=>{
+    c.classList.toggle('hidden', q!==''&&!c.textContent.toLowerCase().includes(q.toLowerCase()));
+  });
+}
+function clearSearch(btn, poolId){
+  const input=btn.previousElementSibling;
+  if(input){input.value='';}
+  filterPool(poolId,'');
+}
+
+function getActiveTexts(containerId){
+  return [...document.querySelectorAll('#'+containerId+' .chip.active')].map(c=>c.textContent.trim());
+}
+function setActiveByText(containerId, texts){
+  document.querySelectorAll('#'+containerId+' .chip').forEach(c=>{
+    if(texts.includes(c.textContent.trim())) c.classList.add('active');
+  });
+}
+function getChipByText(containerId, text){
+  return [...document.querySelectorAll('#'+containerId+' .chip')].find(c=>c.textContent.trim()===text);
+}
+
+function addCustomTo(containerId, inputId){
+  const input=document.getElementById(inputId);
+  if(!input) return;
+  const val=input.value.trim();
+  if(!val) return;
+  addCustomChipTo(containerId, val, true);
+  input.value='';
+  updateSummary();
+}
+
+function addCustomChipTo(containerId, text, active=false){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  const chip=document.createElement('span');
+  chip.className='chip custom'+(active?' active':'');
+  chip.textContent=text;
+  chip.onclick=()=>{ chip.classList.toggle('active'); updateSummary(); };
+  container.appendChild(chip);
+}
+
+function addGenreCustom(){
+  const input=document.getElementById('genre-input');
+  const val=input.value.trim();
+  if(!val) return;
+  addCustomChipTo('genre-custom-area',val,true);
+  input.value='';
+  updateSummary();
+}
+
+// ── EXCLUDE ──────────────────────────────────────────────────
+function addExclude(){
+  const input=document.getElementById('exclude-input');
+  const val=input.value.trim().replace(/^\[|\]$/g,'').trim();
+  if(!val||excludeList.includes(val)){input.value='';return;}
+  excludeList.push(val);
+  renderExcludes();
+  input.value='';
+  updateSummary();
+}
+function removeExclude(val){
+  excludeList=excludeList.filter(e=>e!==val);
+  renderExcludes();
+  updateSummary();
+}
+function renderExcludes(){
+  const c=document.getElementById('exclude-container');
+  if(excludeList.length===0){
+    c.innerHTML='<span style="color:var(--text3);font-size:10px;font-style:italic">Noch keine Ausschlüsse</span>';
+    return;
+  }
+  c.innerHTML='';
+  excludeList.forEach(val=>{
+    const d=document.createElement('div');
+    d.className='exclude-chip';
+    d.innerHTML='no '+escHtml(val)+' <span class="excl-del" onclick="removeExclude(\''+val.replace(/'/g,"\\'")+'\')" >×</span>';
+    c.appendChild(d);
+  });
+}
+
+// ── STRUKTUR ─────────────────────────────────────────────────
+function addBlock(label){
+  const c=document.getElementById('struktur-container');
+  const d=document.createElement('div');
+  d.className='sblock';
+  d.innerHTML=label+' <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span>';
+  c.appendChild(d);
+  updateSummary();
+}
+function addCustomBlock(){
+  const i=document.getElementById('struktur-input');
+  let v=i.value.trim();
+  if(!v)return;
+  if(!v.startsWith('['))v='['+v+']';
+  addBlock(v);i.value='';
+}
+function addCustomSolo(){
+  const i=document.getElementById('solo-input');
+  let v=i.value.trim();
+  if(!v)return;
+  if(!v.startsWith('['))v='['+v+']';
+  addBlock(v);i.value='';
+}
+function repeatBlock(n){
+  const l=document.getElementById('repeat-block').value;
+  for(let i=0;i<n;i++)addBlock(l);
+}
+function getStructure(){
+  return [...document.querySelectorAll('#struktur-container .sblock')].map(b=>b.textContent.replace('×','').trim());
+}
+
+// ── TABS / TOGGLES ───────────────────────────────────────────
+function goToTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>{
+    t.classList.toggle('active',i===j);
+    if(j<i)t.classList.add('done');
+  });
+  document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('active',i===j));
+  window.scrollTo(0,0);
+  if(i===5) loadCloudData();
+}
+function toggleSection(h){ h.parentElement.classList.toggle('collapsed'); }
+
+function toggleCommunity(){
+  const on=document.getElementById('community-toggle').checked;
+  document.querySelectorAll('.community-banner').forEach(b=>b.classList.toggle('visible',on));
+  if(on){
+    setActiveByText('genre-pool',['Akustisch','Folk']);
+    setActiveByText('stimme',['Communal / choir','Warm']);
+    setActiveByText('raum',['Kleiner Kreis / Wohnzimmer','Intime Gruppe / Krankenhausflur']);
+    setActiveByText('kontrolle',['no hall reverb','no stadium sound','close-miked voices']);
+    setActiveByText('perspektive',['Wir / Gemeinschaft']);
+  }
+  updateSummary();
+}
+
+function toggleInstrumental(){
+  const on=document.getElementById('instrumental-toggle').checked;
+  document.getElementById('banner-instrumental-0').classList.toggle('visible',on);
+  const s=document.getElementById('stimme-section');
+  s.style.opacity=on?'0.35':'1';
+  s.style.pointerEvents=on?'none':'';
+  let nv=[...document.querySelectorAll('#kontrolle .chip')].find(c=>c.textContent.trim()==='no vocals');
+  if(on){
+    if(!nv){nv=document.createElement('span');nv.className='chip active';nv.textContent='no vocals';
+      nv.onclick=()=>{nv.classList.toggle('active');updateSummary();};
+      document.getElementById('kontrolle').appendChild(nv);}
+    else nv.classList.add('active');
+  } else { if(nv)nv.classList.remove('active'); }
+  updateSummary();
+}
+
+// ── SUMMARY BAR ──────────────────────────────────────────────
+function updateSummary(){
+  const genre=getActiveTexts('genre-pool');
+  const raum=getActiveTexts('raum');
+  const thema=getActiveTexts('thema');
+  const bar=document.getElementById('summary-bar');
+  let parts=[];
+  if(genre.length) parts.push('<span class="sum-label">STYLE</span> '+genre.map(g=>'<span class="sum-tag">'+g+'</span>').join(' '));
+  if(raum.length) parts.push('<span class="sum-label">RAUM</span> '+raum.map(r=>'<span class="sum-tag">'+r+'</span>').join(' '));
+  if(thema.length) parts.push('<span class="sum-label">THEMA</span> '+thema.map(t=>'<span class="sum-tag">'+t+'</span>').join(' '));
+  if(excludeList.length) parts.push('<span class="sum-label" style="color:var(--warm2)">EXCL</span> '+excludeList.map(e=>'<span class="sum-tag" style="color:var(--warm)">no '+e+'</span>').join(' '));
+  bar.innerHTML=parts.length?parts.join('<span style="color:var(--text3);margin:0 5px">·</span>'):'<span style="color:var(--text3);font-size:10px;letter-spacing:1px">NOCH NICHTS AUSGEWÄHLT</span>';
+}
+
+// ── OUTPUT GENERIERUNG ───────────────────────────────────────
+function tr(t){return TRANSLATE[t]||t;}
+
+function buildAndGoToOutput(){
+  const genreParts=[
+    ...getActiveTexts('genre-pool'),...getActiveTexts('genre-custom-area')
+  ].map(tr);
+  const instrParts=[
+    ...getActiveTexts('instrumente-pool'),...getActiveTexts('instrumente-custom-area')
+  ].map(tr);
+  const styleParts=[
+    ...genreParts,...instrParts,
+    ...getActiveTexts('spielstil').map(tr),
+    ...getActiveTexts('stimme').map(tr),
+    ...getActiveTexts('harmonik').map(tr),
+    ...getActiveTexts('produktion').map(tr),
+    ...getActiveTexts('raum').map(tr),
+    ...getActiveTexts('feeling').map(tr),
+    ...getActiveTexts('kontrolle').map(tr),
+    ...excludeList.map(e=>'no '+e),
+  ];
+  const styleStr=styleParts.length?styleParts.join(', '):'(keine Style-Auswahl)';
+
+  const thema=getActiveTexts('thema');
+  const perspektive=getActiveTexts('perspektive');
+  const sprache=getActiveTexts('sprache');
+  const reim=getActiveTexts('reim');
+  const ton=getActiveTexts('ton');
+  const kiText=document.getElementById('ki-input').value.trim();
+  const blocks=getStructure();
+
+  let lp='Schreibe einen Songtext';
+  if(sprache.length) lp+=' auf '+sprache.join(' / ');
+  lp+='.\n';
+  if(thema.length) lp+='Thema: '+thema.join(', ')+'.\n';
+  if(perspektive.length) lp+='Perspektive: '+perspektive.join(', ')+'.\n';
+  if(reim.length) lp+='Reimschema: '+reim.join(', ')+'.\n';
+  if(ton.length) lp+='Ton: '+ton.join(', ')+'.\n';
+  if(kiText) lp+='\nKontext / Idee:\n'+kiText+'\n';
+  if(blocks.length){
+    lp+='\nStruktur – halte dich genau daran:\n';
+    blocks.forEach(b=>lp+=b+'\n(2–4 Zeilen)\n\n');
+  }
+  if(sprache.some(s=>s==='Deutsch'||s==='gemischt DE/EN'))
+    lp+='\nSuno-Hinweis: Schreibe „ya" statt „ja" im gesamten Text.\n';
+
+  document.getElementById('style-out').textContent=styleStr;
+  document.getElementById('lyrics-out').textContent=lp;
+  goToTab(4);
+}
+
+// ── COPY ─────────────────────────────────────────────────────
+function copyOut(boxId,btnId,label){
+  const text=document.getElementById(boxId).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    btn.textContent='✓ Kopiert!';btn.classList.add('success');
+    setTimeout(()=>{btn.textContent=label;btn.classList.remove('success');},2000);
+  });
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── INIT ─────────────────────────────────────────────────────
+renderExcludes();
+updateSummary();
+initDeviceBar();
+checkVersion();
+</script>
+</body>
+</html>
