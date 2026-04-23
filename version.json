@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
-  "date": "2026-04-22",
-  "changelog": "Supabase-Integration: Prompt-Speicherung, Favoriten, Magic Link Login, PWA-Update-Check"
+  "version": "2.1.1",
+  "date": "2026-04-23",
+  "changelog": "Fix: anonyme Supabase-Speicherung per Geräte-ID, robustere Cloud-Statusmeldungen, PWA-Icon-Referenzen bereinigt"
 }

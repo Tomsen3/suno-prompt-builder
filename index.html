@@ -8,7 +8,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/x-icon" href="./favicon.ico">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -845,7 +845,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
         <div>
           <div class="sub-label" style="margin-top:0">Installierte Version</div>
-          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.1.0</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.1.1</div>
         </div>
         <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
       </div>
@@ -874,7 +874,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 
 // ── GERÄT-ID ─────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -916,14 +916,25 @@ async function sbFetch(path, method='GET', body=null) {
   const headers = {
     'apikey': SB_KEY,
     'Authorization': 'Bearer ' + SB_KEY,
-    'Content-Type': 'application/json',
-    'Prefer': method === 'POST' ? 'return=representation' : ''
+    'Content-Type': 'application/json'
   };
+  if (method === 'POST') headers.Prefer = 'return=representation';
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(SB_URL + path, opts);
   if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.message || r.status); }
   return r.status === 204 ? null : r.json();
+}
+
+function deviceQuery() {
+  return encodeURIComponent(DEVICE_ID);
+}
+
+function setCloudStatus(id, message='', type='') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = message;
+  el.className = 'cloud-status' + (type ? ' ' + type : '');
 }
 
 // ── MODAL HELPERS ────────────────────────────────────────────
@@ -952,13 +963,14 @@ async function doSavePrompt() {
   if (!name) { msg.textContent='Bitte einen Namen eingeben'; msg.className='modal-msg err'; return; }
   const style = document.getElementById('style-out').textContent;
   const lyrics = document.getElementById('lyrics-out').textContent;
-  if (style === '–' || !style) { msg.textContent='Erst Prompts generieren (Tab Output)'; msg.className='modal-msg err'; return; }
+  if (style === '–' || !style || style === '(keine Style-Auswahl)') { msg.textContent='Erst Prompts mit Style-Auswahl generieren'; msg.className='modal-msg err'; return; }
   msg.textContent='Speichere...'; msg.className='modal-msg';
   try {
         await sbFetch('/rest/v1/prompts','POST',{
       device_id: DEVICE_ID, name, style_prompt: style, lyrics_prompt: lyrics
     });
     msg.textContent='✓ Gespeichert!'; msg.className='modal-msg ok';
+    setCloudStatus('prompts-status', 'Prompt gespeichert.', 'ok');
     setTimeout(()=>closeModal('save-prompt-modal'), 1200);
     loadPromptsList();
   } catch(e) { msg.textContent='Fehler: '+e.message; msg.className='modal-msg err'; }
@@ -967,9 +979,10 @@ async function doSavePrompt() {
 async function loadPromptsList() {
   const list = document.getElementById('prompts-list');
   list.innerHTML='<div class="cloud-empty">Lade...</div>';
+  setCloudStatus('prompts-status', 'Synchronisiere Prompts...');
   try {
-        const data = await sbFetch('/rest/v1/prompts?select=*&order=created_at.desc&device_id=eq.'+DEVICE_ID, 'GET');
-    if (!data || data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine gespeicherten Prompts</div>'; return; }
+        const data = await sbFetch('/rest/v1/prompts?select=*&order=created_at.desc&device_id=eq.'+deviceQuery(), 'GET');
+    if (!data || data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine gespeicherten Prompts</div>'; setCloudStatus('prompts-status'); return; }
     list.innerHTML='';
     data.forEach(p => {
       const d = document.createElement('div');
@@ -980,7 +993,8 @@ async function loadPromptsList() {
       d.onclick=()=>loadPromptIntoOutput(p);
       list.appendChild(d);
     });
-  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; }
+    setCloudStatus('prompts-status', data.length+' Prompt'+(data.length===1?'':'s')+' geladen.', 'ok');
+  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; setCloudStatus('prompts-status', 'Supabase nicht erreichbar oder Schema nicht aktuell.', 'err'); }
 }
 
 function loadPromptIntoOutput(p) {
@@ -993,6 +1007,7 @@ async function deletePrompt(id) {
   if (!confirm('Prompt löschen?')) return;
   try {
         await sbFetch('/rest/v1/prompts?id=eq.'+id,'DELETE');
+    setCloudStatus('prompts-status', 'Prompt gelöscht.', 'ok');
     loadPromptsList();
   } catch(e) { alert('Fehler: '+e.message); }
 }
@@ -1000,11 +1015,9 @@ async function deletePrompt(id) {
 // ── CLOUD: FAVORITEN ─────────────────────────────────────────
 function collectCurrentPreset() {
   return {
-    genre: getActiveTexts('genre-pool'),
-    instrumente: [
-      ...getActiveTexts('instrumente-pool'),
-      ...getActiveTexts('instrumente-custom-area')
-    ],
+    genre: uniqueTexts(getActiveTexts('genre-pool')),
+    instrumente: uniqueTexts(getActiveTexts('instrumente-pool')),
+    customInstrumente: getActiveTexts('instrumente-custom-area'),
     spielstil: getActiveTexts('spielstil'),
     stimme: getActiveTexts('stimme'),
     harmonik: getActiveTexts('harmonik'),
@@ -1028,6 +1041,7 @@ async function doSaveFavorite() {
       device_id: DEVICE_ID, name, preset_data
     });
     msg.textContent='✓ Favorit gespeichert!'; msg.className='modal-msg ok';
+    setCloudStatus('favs-status', 'Favorit gespeichert.', 'ok');
     setTimeout(()=>closeModal('save-fav-modal'), 1200);
     loadFavsList();
     loadFavLoadList();
@@ -1037,9 +1051,10 @@ async function doSaveFavorite() {
 async function loadFavsList() {
   const list = document.getElementById('favs-list');
   list.innerHTML='<div class="cloud-empty">Lade...</div>';
+  setCloudStatus('favs-status', 'Synchronisiere Favoriten...');
   try {
-        const data = await sbFetch('/rest/v1/favorites?select=*&order=created_at.desc&device_id=eq.'+DEVICE_ID,'GET');
-    if (!data||data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine Favoriten</div>'; return; }
+        const data = await sbFetch('/rest/v1/favorites?select=*&order=created_at.desc&device_id=eq.'+deviceQuery(),'GET');
+    if (!data||data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine Favoriten</div>'; setCloudStatus('favs-status'); return; }
     list.innerHTML='';
     data.forEach(f=>{
       const d=document.createElement('div');
@@ -1047,30 +1062,31 @@ async function loadFavsList() {
       d.innerHTML=`<span class="cloud-item-name">⭐ ${escHtml(f.name)}</span>
         <span class="cloud-item-date">${new Date(f.created_at).toLocaleDateString('de-DE')}</span>
         <button class="cloud-btn del-btn" onclick="event.stopPropagation();deleteFavorite('${f.id}')">✕</button>`;
-      d.onclick=()=>applyFavorite(f.preset_data);
+      d.onclick=()=>applyFavorite(f.preset_data, f.name);
       list.appendChild(d);
     });
-  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; }
+    setCloudStatus('favs-status', data.length+' Favorit'+(data.length===1?'':'en')+' geladen.', 'ok');
+  } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler: '+escHtml(e.message)+'</div>'; setCloudStatus('favs-status', 'Supabase nicht erreichbar oder Schema nicht aktuell.', 'err'); }
 }
 
 async function loadFavLoadList() {
   const list = document.getElementById('fav-load-list');
   list.innerHTML='<div class="cloud-empty">Lade...</div>';
   try {
-        const data = await sbFetch('/rest/v1/favorites?select=id,name,preset_data&order=created_at.desc&device_id=eq.'+DEVICE_ID,'GET');
+        const data = await sbFetch('/rest/v1/favorites?select=id,name,preset_data&order=created_at.desc&device_id=eq.'+deviceQuery(),'GET');
     if (!data||data.length===0) { list.innerHTML='<div class="cloud-empty">Noch keine Favoriten gespeichert</div>'; return; }
     list.innerHTML='';
     data.forEach(f=>{
       const d=document.createElement('div');
       d.className='cloud-item';
       d.innerHTML=`<span class="cloud-item-name">⭐ ${escHtml(f.name)}</span>`;
-      d.onclick=()=>{ applyFavorite(f.preset_data); goToTab(0); };
+      d.onclick=()=>{ applyFavorite(f.preset_data, f.name); goToTab(0); };
       list.appendChild(d);
     });
   } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler</div>'; }
 }
 
-function applyFavorite(preset) {
+function applyFavorite(preset, name='') {
   // Alle Chips deselektieren
   document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
   excludeList=[];
@@ -1082,6 +1098,9 @@ function applyFavorite(preset) {
   }
   // Instrumente
   if (preset.instrumente) {
+    if (preset.customInstrumente) {
+      preset.customInstrumente.forEach(t=>{ if(!getChipByText('instrumente-custom-area',t)) addCustomChipTo('instrumente-custom-area',t,true); });
+    }
     setActiveByText('instrumente-pool', preset.instrumente);
     setActiveByText('instrumente-custom-area', preset.instrumente);
   }
@@ -1091,13 +1110,14 @@ function applyFavorite(preset) {
   // Excludes
   if (preset.excludeList) { excludeList=[...preset.excludeList]; renderExcludes(); }
   updateSummary();
-  alert('Favorit "' + (preset.name||'') + '" geladen ✓');
+  alert('Favorit "' + (name || 'Preset') + '" geladen ✓');
 }
 
 async function deleteFavorite(id) {
   if (!confirm('Favorit löschen?')) return;
   try {
         await sbFetch('/rest/v1/favorites?id=eq.'+id,'DELETE');
+    setCloudStatus('favs-status', 'Favorit gelöscht.', 'ok');
     loadFavsList();
     loadFavLoadList();
   } catch(e) { alert('Fehler: '+e.message); }
@@ -1209,6 +1229,9 @@ function clearSearch(btn, poolId){
 
 function getActiveTexts(containerId){
   return [...document.querySelectorAll('#'+containerId+' .chip.active')].map(c=>c.textContent.trim());
+}
+function uniqueTexts(list){
+  return [...new Set(list.filter(Boolean))];
 }
 function setActiveByText(containerId, texts){
   document.querySelectorAll('#'+containerId+' .chip').forEach(c=>{
@@ -1369,13 +1392,9 @@ function updateSummary(){
 function tr(t){return TRANSLATE[t]||t;}
 
 function buildAndGoToOutput(){
-  const genreParts=[
-    ...getActiveTexts('genre-pool'),...getActiveTexts('genre-custom-area')
-  ].map(tr);
-  const instrParts=[
-    ...getActiveTexts('instrumente-pool'),...getActiveTexts('instrumente-custom-area')
-  ].map(tr);
-  const styleParts=[
+  const genreParts=uniqueTexts(getActiveTexts('genre-pool')).map(tr);
+  const instrParts=uniqueTexts(getActiveTexts('instrumente-pool')).map(tr);
+  const styleParts=uniqueTexts([
     ...genreParts,...instrParts,
     ...getActiveTexts('spielstil').map(tr),
     ...getActiveTexts('stimme').map(tr),
@@ -1385,7 +1404,7 @@ function buildAndGoToOutput(){
     ...getActiveTexts('feeling').map(tr),
     ...getActiveTexts('kontrolle').map(tr),
     ...excludeList.map(e=>'no '+e),
-  ];
+  ]);
   const styleStr=styleParts.length?styleParts.join(', '):'(keine Style-Auswahl)';
 
   const thema=getActiveTexts('thema');

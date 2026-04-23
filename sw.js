@@ -1,6 +1,6 @@
 // Suno Prompt Builder – Service Worker
 // Beim Update: CACHE_NAME-Version hochzählen, damit alte Caches gelöscht werden
-const CACHE_NAME = 'suno-pb-v2-1-0';
+const CACHE_NAME = 'suno-pb-v2-1-1';
 const CORE_FILES = [
   './',
   './index.html',
