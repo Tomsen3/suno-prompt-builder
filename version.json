@@ -1,5 +1,5 @@
 {
-  "version": "2.2.5",
+  "version": "2.2.6",
   "date": "2026-04-23",
-  "changelog": "Lyrics-Prompt berücksichtigt jetzt den gewählten Style, Instrumentierung, Stimme, Atmosphäre und Suno-Kontrollen"
+  "changelog": "Gespeicherte Prompts und Favoriten stellen Chips jetzt robuster wieder her, fehlende Werte werden als aktive Custom-Chips ergänzt"
 }

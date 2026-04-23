@@ -1049,7 +1049,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
         <div>
           <div class="sub-label" style="margin-top:0">Installierte Version</div>
-          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.5</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.6</div>
         </div>
         <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
       </div>
@@ -1080,7 +1080,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
-const APP_VERSION = '2.2.5';
+const APP_VERSION = '2.2.6';
 
 // ── GERÄT-ID ─────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -1230,8 +1230,9 @@ async function loadPromptsList() {
 function loadPromptIntoOutput(p) {
   document.getElementById('style-out').textContent = p.style_prompt;
   document.getElementById('lyrics-out').textContent = p.lyrics_prompt;
-  if(p.prompt_data && Object.keys(p.prompt_data).length){
-    applyBuilderState(p.prompt_data, p.name);
+  const promptData = normalizeSavedState(p.prompt_data);
+  if(promptData && Object.keys(promptData).length){
+    applyBuilderState(promptData, p.name);
     showToast('Prompt mit Builder-Einstellungen geladen');
     goToTab(0);
   } else {
@@ -1321,7 +1322,7 @@ async function loadFavsList() {
         </div>
         <span class="cloud-item-date">${new Date(f.created_at).toLocaleDateString('de-DE')}</span>
         <button class="cloud-btn del-btn" onclick="event.stopPropagation();deleteFavorite('${f.id}')">✕</button>`;
-      d.onclick=()=>applyFavorite(f.preset_data, f.name);
+      d.onclick=()=>applyFavorite(normalizeSavedState(f.preset_data), f.name);
       list.appendChild(d);
     });
     setCloudStatus('favs-status', data.length+' Favorit'+(data.length===1?'':'en')+' geladen.', 'ok');
@@ -1342,7 +1343,7 @@ async function loadFavLoadList() {
           <div class="cloud-item-name">⭐ ${escHtml(f.name)}</div>
           <div class="cloud-item-desc">${escHtml(summarizePresetItem(f.preset_data))}</div>
         </div>`;
-      d.onclick=()=>{ applyFavorite(f.preset_data, f.name); goToTab(0); };
+      d.onclick=()=>{ applyFavorite(normalizeSavedState(f.preset_data), f.name); goToTab(0); };
       list.appendChild(d);
     });
   } catch(e) { list.innerHTML='<div class="cloud-empty" style="color:var(--warm)">Fehler</div>'; }
@@ -1364,27 +1365,62 @@ function setStructureBlocks(blocks){
   (blocks||[]).forEach(addBlock);
 }
 
+function normalizeSavedState(data){
+  if(!data) return {};
+  if(typeof data === 'string'){
+    try { return JSON.parse(data); } catch(e) { return {}; }
+  }
+  return data;
+}
+
+function asList(value){
+  if(!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function activateExistingOrCustom(containerId, text, customContainerId=containerId){
+  const label=String(text||'').trim();
+  if(!label) return false;
+  const existing=[...document.querySelectorAll('#'+containerId+' .chip')]
+    .find(c=>c.textContent.trim().toLowerCase()===label.toLowerCase());
+  if(existing){
+    existing.classList.add('active');
+    return true;
+  }
+  const customExisting=[...document.querySelectorAll('#'+customContainerId+' .chip')]
+    .find(c=>c.textContent.trim().toLowerCase()===label.toLowerCase());
+  if(customExisting){
+    customExisting.classList.add('active');
+    return true;
+  }
+  addCustomChipTo(customContainerId, label, true);
+  return true;
+}
+
+function restoreActiveChips(containerId, values, customContainerId=containerId){
+  asList(values).forEach(v=>activateExistingOrCustom(containerId, v, customContainerId));
+}
+
 function applyBuilderState(preset, name='') {
   clearBuilderState();
   if(preset.promptMode) document.querySelectorAll('#prompt-modes .mode-card').forEach(c=>c.classList.toggle('active',c.dataset.mode===preset.promptMode));
   if(preset.ranges) Object.keys(preset.ranges).forEach(k=>setRange(k,preset.ranges[k]));
   // Genre
-  if (preset.genre) setActiveByText('genre-pool', preset.genre);
+  if (preset.genre) restoreActiveChips('genre-pool', preset.genre, 'genre-custom-area');
   // Custom Genre
   if (preset.customGenre) {
-    preset.customGenre.forEach(t=>{ if(!getChipByText('genre-custom-area',t)) addCustomChipTo('genre-custom-area',t,true); });
+    restoreActiveChips('genre-custom-area', preset.customGenre, 'genre-custom-area');
   }
   // Instrumente
   if (preset.instrumente) {
     if (preset.customInstrumente) {
-      preset.customInstrumente.forEach(t=>{ if(!getChipByText('instrumente-custom-area',t)) addCustomChipTo('instrumente-custom-area',t,true); });
+      restoreActiveChips('instrumente-custom-area', preset.customInstrumente, 'instrumente-custom-area');
     }
-    setActiveByText('instrumente-pool', preset.instrumente);
-    setActiveByText('instrumente-custom-area', preset.instrumente);
+    restoreActiveChips('instrumente-pool', preset.instrumente, 'instrumente-custom-area');
   }
   // Einfache Gruppen
   const simpleGroups=['spielstil','stimme','harmonik','produktion','raum','feeling','kontrolle','thema','setting','ziel','belastbarkeit','mitsing','perspektive','sprache','reim','ton'];
-  simpleGroups.forEach(g=>{ if(preset[g]) setActiveByText(g, preset[g]); });
+  simpleGroups.forEach(g=>{ if(preset[g]) restoreActiveChips(g, preset[g], g); });
   if(preset.avoidText) document.getElementById('avoid-input').value=preset.avoidText;
   if(preset.hookText) document.getElementById('hook-input').value=preset.hookText;
   if(preset.ideaText) document.getElementById('ki-input').value=preset.ideaText;
