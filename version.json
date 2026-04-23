@@ -1,5 +1,5 @@
 {
-  "version": "2.2.3",
+  "version": "2.2.5",
   "date": "2026-04-23",
-  "changelog": "Gespeicherte Prompts sichern und laden jetzt den vollständigen Builder-Zustand zum Nacharbeiten"
+  "changelog": "Lyrics-Prompt berücksichtigt jetzt den gewählten Style, Instrumentierung, Stimme, Atmosphäre und Suno-Kontrollen"
 }

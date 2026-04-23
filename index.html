@@ -159,10 +159,17 @@ body{font-family:'Fraunces',serif;background:
 .chip{border:1px solid var(--border2);border-radius:4px;padding:5px 11px;font-size:11px;
   cursor:pointer;background:var(--surface2);color:var(--text2);
   font-family:'Fraunces',serif;transition:all .15s;line-height:1;
-  -webkit-tap-highlight-color:transparent}
+  -webkit-tap-highlight-color:transparent;position:relative}
 .chip:hover{border-color:var(--warm);color:var(--text);background:#fff1cf}
-.chip.active{background:linear-gradient(135deg,var(--accent),#14b8a6);color:#fff;border-color:var(--accent);font-weight:500;box-shadow:0 3px 10px rgba(15,118,110,.22)}
-.chip.warm-chip.active{background:var(--warm);border-color:var(--warm);color:#fff}
+.chips .chip.active,
+.chip.active{background:linear-gradient(135deg,#0f766e,#7c3aed)!important;color:#fff!important;
+  border:2px solid #ffd166!important;font-weight:700;box-shadow:0 0 0 2px rgba(124,58,237,.2),0 7px 18px rgba(15,23,42,.22);
+  padding:4px 10px 4px 24px;transform:translateY(-1px)}
+.chips .chip.active::before,
+.chip.active::before{content:'✓';position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  font-size:10px;color:#ffd166;font-weight:900}
+.chip.warm-chip.active{background:linear-gradient(135deg,var(--warm),var(--rose))!important;border-color:#ffd166!important;color:#fff!important}
+.chip.custom.active{background:linear-gradient(135deg,var(--blue),var(--accent))!important}
 .chip.custom{border-style:dashed}
 .chip.hidden{display:none!important}
 
@@ -1042,7 +1049,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
         <div>
           <div class="sub-label" style="margin-top:0">Installierte Version</div>
-          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.3</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.5</div>
         </div>
         <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
       </div>
@@ -1073,7 +1080,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
-const APP_VERSION = '2.2.3';
+const APP_VERSION = '2.2.5';
 
 // ── GERÄT-ID ─────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -1385,6 +1392,7 @@ function applyBuilderState(preset, name='') {
   // Excludes
   if (preset.excludeList) { excludeList=[...preset.excludeList]; renderExcludes(); }
   updateSummary();
+  requestAnimationFrame(()=>document.querySelectorAll('.chip.active').forEach(c=>c.classList.add('active')));
 }
 
 function applyFavorite(preset, name='') {
@@ -1653,8 +1661,9 @@ function uniqueTexts(list){
   return [...new Set(list.filter(Boolean))];
 }
 function setActiveByText(containerId, texts){
+  const wanted = (texts || []).map(t=>String(t).trim().toLowerCase());
   document.querySelectorAll('#'+containerId+' .chip').forEach(c=>{
-    if(texts.includes(c.textContent.trim())) c.classList.add('active');
+    if(wanted.includes(c.textContent.trim().toLowerCase())) c.classList.add('active');
   });
 }
 function getChipByText(containerId, text){
@@ -1863,6 +1872,24 @@ function renderConflicts(warnings){
   panel.innerHTML='<div class="sub-label" style="margin-top:0;color:var(--warm)">Konfliktprüfung</div><ul>'+warnings.map(w=>'<li>'+escHtml(w)+'</li>').join('')+'</ul>';
 }
 
+function styleContextForLyrics(){
+  const genres=uniqueTexts([...getActiveTexts('genre-pool'),...getActiveTexts('genre-custom-area')]);
+  const instr=uniqueTexts([...getActiveTexts('instrumente-pool'),...getActiveTexts('instrumente-custom-area')]);
+  const voice=getActiveTexts('stimme');
+  const groove=[...getActiveTexts('spielstil'),...getActiveTexts('harmonik')];
+  const production=[...getActiveTexts('produktion'),...getActiveTexts('raum'),...getActiveTexts('feeling')];
+  const controls=[...getActiveTexts('kontrolle'),...excludeList.map(e=>'no '+e)];
+  const lines=[];
+  if(genres.length) lines.push('Musikalischer Stil: '+genres.join(', ')+'.');
+  if(instr.length) lines.push('Instrumentierung: '+instr.join(', ')+'.');
+  if(voice.length) lines.push('Gesangsbild: '+voice.join(', ')+'.');
+  if(groove.length) lines.push('Spielweise / Harmonik: '+groove.join(', ')+'.');
+  if(production.length) lines.push('Raum / Atmosphäre: '+production.join(', ')+'.');
+  if(controls.length) lines.push('Suno-Kontrolle / Ausschlüsse: '+controls.join(', ')+'.');
+  lines.push('Qualitätsrahmen: '+qualityTags().join(', ')+'.');
+  return lines.join('\n');
+}
+
 function formatOutputShort(){
   document.getElementById('style-out').textContent=buildStyleFromParts(lastStyleParts,'short');
   showToast('Style-Prompt gekürzt');
@@ -1908,6 +1935,11 @@ function buildAndGoToOutput(){
   let lp='Schreibe einen Songtext';
   if(sprache.length) lp+=' auf '+sprache.join(' / ');
   lp+='.\n';
+  const styleContext=styleContextForLyrics();
+  if(styleContext){
+    lp+='\nBeziehe den Text klar auf diesen musikalischen Style-Rahmen:\n'+styleContext+'\n';
+    lp+='Passe Zeilenlänge, Wortwahl, Wiederholungen, Bildsprache und Refrain-Dichte an diesen Style an.\n';
+  }
   if(getPromptMode()==='therapy') lp+='Arbeite musiktherapeutisch sensibel: stabilisierend, nicht überfordernd, gut mitsingbar.\n';
   if(setting.length) lp+='Setting: '+setting.join(', ')+'.\n';
   if(ziel.length) lp+='Ziel: '+ziel.join(', ')+'.\n';
