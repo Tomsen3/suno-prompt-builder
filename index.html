@@ -9,30 +9,30 @@
 <link rel="icon" type="image/x-icon" href="./favicon.ico">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#8a9aaa;--surface:#9aaaba;--surface2:#7a8a9a;
-  --border:#6a7a8a;--border2:#5a6a7a;
-  --text:#f0f4f8;--text2:#d0dce8;--text3:#a0b0c0;
-  --accent:#7dd4c0;--accent2:#50b0a0;
-  --warm:#e08060;--warm2:#a05030;--green:#70b880;
+  --bg:#e8e0d0;--surface:#f0e8d8;--surface2:#ddd5c4;
+  --border:#bfb49e;--border2:#a89880;
+  --text:#2a2520;--text2:#4a4238;--text3:#8a7e6e;
+  --accent:#2a6e60;--accent2:#1d5045;
+  --warm:#b04020;--warm2:#7a2a10;--green:#2a6a30;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+body{font-family:'Fraunces',serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;font-weight:500}
 
 /* ── UPDATE BANNER ── */
 #update-banner{display:none;background:#2a4a3a;border-bottom:1px solid var(--accent2);
   padding:8px 20px;font-size:11px;color:var(--accent);align-items:center;gap:10px}
 #update-banner.visible{display:flex}
 #update-banner button{background:var(--accent);color:#1a3030;border:none;border-radius:4px;
-  padding:4px 12px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
+  padding:4px 12px;font-family:'Fraunces',serif;font-size:11px;cursor:pointer}
 
 /* ── HEADER ── */
-.header{background:var(--surface);border-bottom:1px solid var(--border);
+.header{background:var(--surface);border-bottom:2px solid var(--border);
   padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100}
-.logo-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent)}
+.logo-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent2)}
 .logo-sub{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-left:8px}
 .version-tag{font-size:9px;color:var(--text3);border:1px solid var(--border2);
   border-radius:3px;padding:1px 5px;margin-left:6px}
@@ -49,11 +49,10 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .toggle input:checked~.toggle-track::before{transform:translateX(16px);background:var(--warm)}
 
 /* ── DEVICE BAR ── */
-#device-bar{background:var(--surface2);border-bottom:1px solid var(--border);
-  padding:5px 20px;display:flex;align-items:center;gap:10px;font-size:10px;color:var(--text3)}
-#device-id-short{font-family:'DM Mono',monospace;color:var(--accent2);font-size:10px;letter-spacing:.5px}
+#device-bar{display:none}
+#device-id-short{font-family:'Fraunces',serif;color:var(--accent2);font-size:10px;letter-spacing:.5px}
 .device-btn{background:none;border:1px solid var(--border2);border-radius:4px;
-  padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);
+  padding:3px 9px;font-family:'Fraunces',serif;font-size:10px;color:var(--text3);
   cursor:pointer;transition:all .15s;white-space:nowrap}
 .device-btn:hover{border-color:var(--accent2);color:var(--accent)}
 
@@ -66,7 +65,7 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .modal h3{font-family:'Playfair Display',serif;color:var(--accent);margin-bottom:6px;font-size:16px}
 .modal p{font-size:11px;color:var(--text2);margin-bottom:16px;line-height:1.6}
 .modal input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;
-  padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
+  padding:9px 12px;font-family:'Fraunces',serif;font-size:12px;color:var(--text);
   outline:none;margin-bottom:10px;transition:border-color .15s}
 .modal input:focus{border-color:var(--accent2)}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
@@ -87,9 +86,9 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:10px 15px;font-size:11px;cursor:pointer;white-space:nowrap;color:var(--text3);
   border-right:1px solid var(--border);display:flex;align-items:center;gap:6px;
-  transition:color .15s,background .15s;font-family:'DM Mono',monospace;user-select:none;flex-shrink:0}
+  transition:color .15s,background .15s;font-family:'Fraunces',serif;user-select:none;flex-shrink:0}
 .tab:hover{color:var(--text2);background:var(--surface2)}
-.tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+.tab.active{color:var(--accent2);border-bottom:2px solid var(--accent2)}
 .tab-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .2s}
 .tab.active .tab-dot{background:var(--accent)}
 .tab.done .tab-dot{background:var(--green)}
@@ -119,7 +118,7 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
   cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:background .15s}
 .section-header:hover{background:var(--surface2)}
 .section:not(.collapsed) .section-header{border-bottom-color:var(--border)}
-.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);font-weight:500}
 .section-arrow{color:var(--text3);font-size:10px;transition:transform .2s}
 .section.collapsed .section-arrow{transform:rotate(-90deg)}
 .section-body{padding:13px 15px}
@@ -133,7 +132,7 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 /* ── CHIP SEARCH ── */
 .chip-search-row{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .chip-search{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
-  padding:5px 10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);
+  padding:5px 10px;font-size:11px;font-family:'Fraunces',serif;color:var(--text);
   outline:none;flex:1;transition:border-color .15s}
 .chip-search::placeholder{color:var(--text3)}
 .chip-search:focus{border-color:var(--accent2)}
@@ -150,10 +149,10 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
 .chip{border:1px solid var(--border2);border-radius:4px;padding:5px 11px;font-size:11px;
   cursor:pointer;background:var(--surface2);color:var(--text2);
-  font-family:'DM Mono',monospace;transition:all .15s;line-height:1;
+  font-family:'Fraunces',serif;transition:all .15s;line-height:1;
   -webkit-tap-highlight-color:transparent}
 .chip:hover{border-color:var(--accent2);color:var(--text)}
-.chip.active{background:var(--accent);color:#1a3030;border-color:var(--accent);font-weight:500}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
 .chip.warm-chip.active{background:var(--warm);border-color:var(--warm);color:#fff}
 .chip.custom{border-style:dashed}
 .chip.hidden{display:none!important}
@@ -161,26 +160,26 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 /* ── ADD ROW ── */
 .add-row{display:flex;gap:6px;margin-top:9px;align-items:center}
 .add-row input,.solo-input,.excl-input{background:var(--surface2);border:1px solid var(--border2);
-  border-radius:4px;padding:5px 11px;font-size:11px;font-family:'DM Mono',monospace;
+  border-radius:4px;padding:5px 11px;font-size:11px;font-family:'Fraunces',serif;
   color:var(--text);outline:none;flex:1;min-width:0;transition:border-color .15s}
 .add-row input::placeholder,.solo-input::placeholder,.excl-input::placeholder{color:var(--text3)}
 .add-row input:focus,.solo-input:focus{border-color:var(--accent2)}
 .excl-input:focus{border-color:var(--warm2)}
 .add-row button{background:none;border:1px dashed var(--border2);border-radius:4px;padding:5px 11px;
-  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--text3);transition:all .15s;white-space:nowrap}
+  font-size:11px;cursor:pointer;font-family:'Fraunces',serif;color:var(--text3);transition:all .15s;white-space:nowrap}
 .add-row button:hover{border-color:var(--accent2);color:var(--accent)}
 
 /* ── EXCLUDE ── */
 .exclude-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;padding:7px;
   border:1px dashed var(--border2);border-radius:6px;background:rgba(160,80,48,.06);align-items:center}
 .exclude-chip{border:1px solid var(--warm2);border-radius:4px;padding:4px 9px;font-size:11px;
-  background:rgba(160,80,48,.1);color:var(--warm);font-family:'DM Mono',monospace;
+  background:rgba(160,80,48,.1);color:var(--warm);font-family:'Fraunces',serif;
   display:flex;align-items:center;gap:5px}
 .excl-del{color:var(--warm2);cursor:pointer;font-size:14px;line-height:1}
 .excl-del:hover{color:var(--warm)}
 .excl-add-row{display:flex;gap:6px;margin-top:7px;align-items:center}
 .excl-add-btn{background:none;border:1px dashed var(--warm2);border-radius:4px;padding:5px 10px;
-  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--warm2);transition:all .15s;white-space:nowrap}
+  font-size:11px;cursor:pointer;font-family:'Fraunces',serif;color:var(--warm2);transition:all .15s;white-space:nowrap}
 .excl-add-btn:hover{border-color:var(--warm);color:var(--warm)}
 
 /* ── STRUKTUR ── */
@@ -193,18 +192,18 @@ body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-
 .sblock .del:hover{color:var(--warm)}
 .add-blocks{display:flex;flex-wrap:wrap;gap:5px}
 .add-block-btn{border:1px dashed var(--border2);border-radius:4px;padding:4px 9px;font-size:11px;
-  cursor:pointer;background:none;font-family:'DM Mono',monospace;color:var(--text3);transition:all .15s}
+  cursor:pointer;background:none;font-family:'Fraunces',serif;color:var(--text3);transition:all .15s}
 .add-block-btn:hover{border-color:var(--accent2);color:var(--accent);background:var(--surface2)}
 .add-block-btn.solo-btn{border-color:rgba(125,212,192,.3);color:var(--accent2)}
 .add-block-btn.solo-btn:hover{border-color:var(--accent);color:var(--accent)}
 .solo-input-row{display:flex;gap:6px;margin-top:7px;align-items:center}
 .solo-add-btn{background:none;border:1px dashed var(--accent2);border-radius:4px;padding:5px 11px;
-  font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--accent2);transition:all .15s;white-space:nowrap}
+  font-size:11px;cursor:pointer;font-family:'Fraunces',serif;color:var(--accent2);transition:all .15s;white-space:nowrap}
 .solo-add-btn:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ── TEXTAREA ── */
 textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;
-  padding:11px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
+  padding:11px;font-family:'Fraunces',serif;font-size:12px;color:var(--text);
   resize:vertical;min-height:78px;outline:none;transition:border-color .15s;line-height:1.6}
 textarea::placeholder{color:var(--text3)}
 textarea:focus{border-color:var(--accent2)}
@@ -212,7 +211,7 @@ textarea:focus{border-color:var(--accent2)}
 /* ── NAV ROW ── */
 .nav-row{display:flex;justify-content:space-between;align-items:center;
   margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
-.btn{padding:9px 18px;font-family:'DM Mono',monospace;font-size:12px;
+.btn{padding:9px 18px;font-family:'Fraunces',serif;font-size:12px;
   border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:.5px;border:none}
 .btn-primary{background:var(--accent);color:var(--bg);font-weight:500}
 .btn-primary:hover{background:var(--accent2)}
@@ -231,9 +230,9 @@ textarea:focus{border-color:var(--accent2)}
 .output-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
   padding:13px;font-size:12px;line-height:1.8;min-height:90px;
   white-space:pre-wrap;word-break:break-word;color:var(--text);margin-bottom:7px;
-  font-family:'DM Mono',monospace}
+  font-family:'Fraunces',serif}
 .copy-btn{width:100%;padding:10px;background:var(--surface);border:1px solid var(--border2);
-  border-radius:5px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);
+  border-radius:5px;font-family:'Fraunces',serif;font-size:12px;color:var(--text2);
   cursor:pointer;transition:all .15s;display:flex;align-items:center;
   justify-content:center;gap:7px;letter-spacing:.5px}
 .copy-btn:hover{border-color:var(--accent2);color:var(--accent);background:var(--surface2)}
@@ -243,11 +242,11 @@ textarea:focus{border-color:var(--accent2)}
 .cloud-section{margin-top:18px}
 .cloud-row{display:flex;gap:8px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
 .cloud-input{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
-  padding:7px 11px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);
+  padding:7px 11px;font-size:11px;font-family:'Fraunces',serif;color:var(--text);
   outline:none;flex:1;min-width:160px;transition:border-color .15s}
 .cloud-input:focus{border-color:var(--accent2)}
 .cloud-input::placeholder{color:var(--text3)}
-.cloud-btn{padding:7px 14px;font-family:'DM Mono',monospace;font-size:11px;border-radius:4px;
+.cloud-btn{padding:7px 14px;font-family:'Fraunces',serif;font-size:11px;border-radius:4px;
   cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
 .cloud-btn.save{background:var(--accent);color:#1a3030;font-weight:500}
 .cloud-btn.save:hover{background:var(--accent2)}
@@ -269,7 +268,7 @@ textarea:focus{border-color:var(--accent2)}
 
 /* ── SELECT ── */
 select{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
-  padding:5px 9px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);outline:none}
+  padding:5px 9px;font-family:'Fraunces',serif;font-size:11px;color:var(--text);outline:none}
 </style>
 </head>
 <body>
@@ -349,6 +348,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
   <div class="tab" onclick="goToTab(3)"><span class="tab-dot"></span>04 Lyrics</div>
   <div class="tab" onclick="goToTab(4)"><span class="tab-dot"></span>✦ Output</div>
   <div class="tab" onclick="goToTab(5)"><span class="tab-dot"></span>☁ Gespeichert</div>
+  <div class="tab" onclick="goToTab(6)"><span class="tab-dot"></span>⚙ Einstellungen</div>
 </div>
 
 <!-- ===== TAB 1: STYLE ===== -->
@@ -813,6 +813,62 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
   </div>
 </div>
 
+<!-- ===== TAB 7: EINSTELLUNGEN ===== -->
+<div class="tab-content" id="tab-6">
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">📱 Geräte-Synchronisation</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Deine Prompts und Favoriten werden anonym unter einer <strong>Geräte-ID</strong> gespeichert – kein Login nötig.
+        Um auf einem zweiten Gerät auf dieselben Daten zuzugreifen, kopiere die ID hier und importiere sie dort.
+      </p>
+      <div class="sub-label">Deine Geräte-ID</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <code id="settings-device-id" style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-size:12px;color:var(--text);flex:1;min-width:0;word-break:break-all;font-family:monospace">–</code>
+        <button class="device-btn" onclick="copyDeviceIdSettings()">📋 Kopieren</button>
+      </div>
+      <div class="sub-label">ID von anderem Gerät übernehmen</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="import-id-input" placeholder="Geräte-ID einfügen…"
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:7px 11px;font-size:12px;font-family:'Fraunces',serif;color:var(--text);outline:none;flex:1;min-width:0;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border2)'">
+        <button class="device-btn" onclick="importDeviceIdSettings()">🔄 Übernehmen</button>
+      </div>
+      <div id="sync-msg" style="font-size:11px;min-height:18px;margin-top:8px;color:var(--green)"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">🔄 App-Version & Update</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <div class="sub-label" style="margin-top:0">Installierte Version</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.1.0</div>
+        </div>
+        <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
+      </div>
+      <button class="btn btn-secondary" onclick="checkUpdateManual()" id="check-update-btn" style="width:100%;justify-content:center;display:flex;gap:8px;align-items:center">
+        🔍 Jetzt auf Update prüfen
+      </button>
+      <div id="update-result" style="margin-top:10px;font-size:12px;min-height:20px;line-height:1.6"></div>
+    </div>
+  </div>
+
+  <div class="section collapsed">
+    <div class="section-header" onclick="toggleSection(this)"><span class="section-title">ℹ️ Über diese App</span><span class="section-arrow">▾</span></div>
+    <div class="section-body">
+      <p style="font-size:12px;color:var(--text2);line-height:1.8">
+        <strong>Suno Prompt Builder</strong> – entwickelt für Musik-Therapeuten und Suno-Nutzer.<br>
+        Hilft beim Zusammenstellen präziser Style- und Lyrics-Prompts für Suno AI.<br><br>
+        <span style="color:var(--text3)">Daten werden anonym in Supabase gespeichert. Kein Tracking, kein Login.</span>
+      </p>
+    </div>
+  </div>
+
+</div>
+
 <!-- ============================================================ SCRIPT ============================================================ -->
 <script>
 // ── SUPABASE CONFIG ──────────────────────────────────────────
@@ -1262,6 +1318,7 @@ function goToTab(i){
   document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('active',i===j));
   window.scrollTo(0,0);
   if(i===5) loadCloudData();
+  if(i===6) initSettingsTab();
 }
 function toggleSection(h){ h.parentElement.classList.toggle('collapsed'); }
 
@@ -1371,6 +1428,83 @@ function copyOut(boxId,btnId,label){
 
 // ── UTILS ────────────────────────────────────────────────────
 function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── EINSTELLUNGEN-TAB ────────────────────────────────────────
+function initSettingsTab(){
+  const el = document.getElementById('settings-device-id');
+  if(el) el.textContent = DEVICE_ID;
+  const vEl = document.getElementById('settings-version');
+  if(vEl) vEl.textContent = 'v' + APP_VERSION;
+}
+
+function copyDeviceIdSettings(){
+  navigator.clipboard.writeText(DEVICE_ID).then(()=>{
+    const msg = document.getElementById('sync-msg');
+    msg.textContent = '✓ Geräte-ID in Zwischenablage kopiert';
+    msg.style.color = 'var(--green)';
+    setTimeout(()=>msg.textContent='', 2500);
+  });
+}
+
+function importDeviceIdSettings(){
+  const input = document.getElementById('import-id-input');
+  const newId = input.value.trim();
+  const msg = document.getElementById('sync-msg');
+  if(!newId || newId.length < 10){
+    msg.textContent = '⚠ Bitte eine gültige Geräte-ID eingeben';
+    msg.style.color = 'var(--warm)';
+    return;
+  }
+  DEVICE_ID = newId.toLowerCase();
+  localStorage.setItem('suno_device_id', DEVICE_ID);
+  document.getElementById('settings-device-id').textContent = DEVICE_ID;
+  input.value = '';
+  msg.textContent = '✓ Geräte-ID übernommen – Daten werden synchronisiert';
+  msg.style.color = 'var(--green)';
+  loadCloudData();
+  setTimeout(()=>msg.textContent='', 3000);
+}
+
+async function checkUpdateManual(){
+  const btn = document.getElementById('check-update-btn');
+  const result = document.getElementById('update-result');
+  const badge = document.getElementById('update-status-badge');
+  btn.textContent = '⏳ Prüfe…';
+  btn.disabled = true;
+  result.textContent = '';
+  try {
+    const r = await fetch('./version.json?t='+Date.now());
+    if(!r.ok) throw new Error('version.json nicht erreichbar');
+    const d = await r.json();
+    btn.textContent = '🔍 Jetzt auf Update prüfen';
+    btn.disabled = false;
+    if(d.version !== APP_VERSION){
+      badge.innerHTML = '<span style="color:var(--warm);font-weight:600">● Update verfügbar</span>';
+      result.innerHTML = `<strong style="color:var(--warm)">v${d.version} verfügbar!</strong><br>
+        <span style="color:var(--text2)">${d.changelog||''}</span><br><br>
+        <button class="btn btn-primary" onclick="location.reload(true)">🔄 Jetzt aktualisieren</button>`;
+    } else {
+      badge.innerHTML = '<span style="color:var(--green);font-weight:600">● Aktuell</span>';
+      result.innerHTML = `<span style="color:var(--green)">✓ Du nutzt bereits die aktuelle Version (v${APP_VERSION})</span>`;
+    }
+  } catch(e){
+    btn.textContent = '🔍 Jetzt auf Update prüfen';
+    btn.disabled = false;
+    badge.innerHTML = '<span style="color:var(--text3)">Nicht prüfbar</span>';
+    result.innerHTML = `<span style="color:var(--warm)">Prüfung fehlgeschlagen – bist du online?</span>`;
+  }
+}
+
+// ── MOBILE AUTO-COLLAPSE ─────────────────────────────────────
+function initMobileCollapse(){
+  if(window.innerWidth < 640){
+    document.querySelectorAll('.section').forEach((s,i)=>{
+      // Erste Sektion offen lassen, alle anderen einklappen
+      if(i > 0) s.classList.add('collapsed');
+    });
+  }
+}
+initMobileCollapse();
 
 // ── INIT ─────────────────────────────────────────────────────
 renderExcludes();
