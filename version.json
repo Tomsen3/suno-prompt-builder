@@ -1,5 +1,5 @@
 {
-  "version": "2.1.1",
+  "version": "2.2.0",
   "date": "2026-04-23",
-  "changelog": "Fix: anonyme Supabase-Speicherung per Geräte-ID, robustere Cloud-Statusmeldungen, PWA-Icon-Referenzen bereinigt"
+  "changelog": "Ausbau: Prompt-Modi, Preset-Sammlungen, Qualitätsregler, Therapie-Kontext, Konfliktprüfung, editierbarer Output und mehr Vorauswahl"
 }
