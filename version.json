@@ -1,5 +1,5 @@
 {
-  "version": "2.2.7",
+  "version": "2.2.8",
   "date": "2026-04-23",
-  "changelog": "Lyrics-Prompt fordert jetzt englische Suno-Spielanweisungen und Dynamik-Tags im Songtext an"
+  "changelog": "Songaufbau kann komplett gelöscht werden; neue Blöcke lassen sich vor oder nach markierten Elementen einfügen"
 }

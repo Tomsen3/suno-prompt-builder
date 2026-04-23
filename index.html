@@ -204,7 +204,9 @@ body{font-family:'Fraunces',serif;background:
   margin-bottom:10px;background:var(--surface2)}
 .sblock{background:var(--surface);border:1px solid var(--border2);border-radius:4px;
   padding:5px 9px;font-size:11px;color:var(--accent);display:flex;align-items:center;gap:7px}
+.sblock.selected{background:linear-gradient(135deg,var(--violet),var(--accent));color:#fff;border-color:#ffd166;box-shadow:0 0 0 2px rgba(217,154,25,.25)}
 .sblock .del{color:var(--text3);cursor:pointer;font-size:14px;line-height:1;transition:color .15s}
+.sblock.selected .del{color:#ffd166}
 .sblock .del:hover{color:var(--warm)}
 .add-blocks{display:flex;flex-wrap:wrap;gap:5px}
 .add-block-btn{border:1px dashed var(--border2);border-radius:4px;padding:4px 9px;font-size:11px;
@@ -758,13 +760,17 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
     <div class="section-header" onclick="toggleSection(this)"><span class="section-title">Songaufbau</span><span class="section-arrow">▾</span></div>
     <div class="section-body">
       <div class="sub-label">Aktuelle Struktur</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <button class="add-block-btn" onclick="clearStructure()">Alles löschen</button>
+        <button class="add-block-btn" onclick="setDefaultStructure()">Standard wiederherstellen</button>
+        <select id="insert-mode" onchange="showToast('Einfügemodus: '+this.options[this.selectedIndex].text)">
+          <option value="after">Nach markiertem Block einfügen</option>
+          <option value="before">Vor markiertem Block einfügen</option>
+          <option value="end">Am Ende einfügen</option>
+        </select>
+        <span style="font-size:10px;color:var(--text3)">Block anklicken, um Einfügeposition zu markieren.</span>
+      </div>
       <div class="struktur-area" id="struktur-container">
-        <div class="sblock">[Intro] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
-        <div class="sblock">[Verse 1] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
-        <div class="sblock">[Chorus] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
-        <div class="sblock">[Verse 2] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
-        <div class="sblock">[Chorus] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
-        <div class="sblock">[Outro] <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span></div>
       </div>
       <div class="sub-label">Standard</div>
       <div class="add-blocks">
@@ -1049,7 +1055,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
         <div>
           <div class="sub-label" style="margin-top:0">Installierte Version</div>
-          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.7</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.8</div>
         </div>
         <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
       </div>
@@ -1080,7 +1086,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
-const APP_VERSION = '2.2.7';
+const APP_VERSION = '2.2.8';
 
 // ── GERÄT-ID ─────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -1355,6 +1361,7 @@ function clearBuilderState(){
   ['avoid-input','hook-input','ki-input'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
   const structure=document.getElementById('struktur-container');
   if(structure) structure.innerHTML='';
+  selectedStructureBlock=null;
   renderExcludes();
 }
 
@@ -1362,7 +1369,12 @@ function setStructureBlocks(blocks){
   const structure=document.getElementById('struktur-container');
   if(!structure) return;
   structure.innerHTML='';
+  selectedStructureBlock=null;
+  const mode=document.getElementById('insert-mode');
+  const prevMode=mode ? mode.value : 'after';
+  if(mode) mode.value='end';
   (blocks||[]).forEach(addBlock);
+  if(mode) mode.value=prevMode;
 }
 
 function normalizeSavedState(data){
@@ -1538,6 +1550,7 @@ const GENRE_PRESETS = {
 // ── STATE ────────────────────────────────────────────────────
 let excludeList=[];
 let lastStyleParts=[];
+let selectedStructureBlock=null;
 
 // ── CHIP UTILS ───────────────────────────────────────────────
 function toggleChip(el){ el.classList.toggle('active'); updateSummary(); }
@@ -1770,9 +1783,50 @@ function addBlock(label){
   const c=document.getElementById('struktur-container');
   const d=document.createElement('div');
   d.className='sblock';
-  d.innerHTML=label+' <span class="del" onclick="this.parentElement.remove();updateSummary()">×</span>';
-  c.appendChild(d);
+  d.innerHTML=escHtml(label)+' <span class="del" onclick="event.stopPropagation();removeStructureBlock(this.parentElement)">×</span>';
+  d.onclick=()=>selectStructureBlock(d);
+  const mode=document.getElementById('insert-mode')?.value || 'after';
+  if(mode==='end' || !selectedStructureBlock || !c.contains(selectedStructureBlock)){
+    c.appendChild(d);
+  } else if(mode==='before'){
+    c.insertBefore(d, selectedStructureBlock);
+  } else {
+    selectedStructureBlock.after(d);
+  }
+  selectStructureBlock(d);
   updateSummary();
+}
+
+function selectStructureBlock(block){
+  document.querySelectorAll('#struktur-container .sblock.selected').forEach(b=>b.classList.remove('selected'));
+  selectedStructureBlock=block;
+  if(block) block.classList.add('selected');
+}
+
+function removeStructureBlock(block){
+  const next=block.nextElementSibling || block.previousElementSibling;
+  if(selectedStructureBlock===block) selectedStructureBlock=null;
+  block.remove();
+  if(next) selectStructureBlock(next);
+  updateSummary();
+}
+
+function clearStructure(silent=false){
+  document.getElementById('struktur-container').innerHTML='';
+  selectedStructureBlock=null;
+  updateSummary();
+  if(!silent) showToast('Struktur gelöscht');
+}
+
+function setDefaultStructure(silent=false){
+  clearStructure(true);
+  ['[Intro]','[Verse 1]','[Chorus]','[Verse 2]','[Chorus]','[Outro]'].forEach(label=>{
+    const prevMode=document.getElementById('insert-mode')?.value;
+    if(document.getElementById('insert-mode')) document.getElementById('insert-mode').value='end';
+    addBlock(label);
+    if(document.getElementById('insert-mode')) document.getElementById('insert-mode').value=prevMode;
+  });
+  if(!silent) showToast('Standard-Struktur wiederhergestellt');
 }
 function addCustomBlock(){
   const i=document.getElementById('struktur-input');
@@ -1793,7 +1847,7 @@ function repeatBlock(n){
   for(let i=0;i<n;i++)addBlock(l);
 }
 function getStructure(){
-  return [...document.querySelectorAll('#struktur-container .sblock')].map(b=>b.textContent.replace('×','').trim());
+  return [...document.querySelectorAll('#struktur-container .sblock')].map(b=>b.childNodes[0].textContent.trim());
 }
 
 // ── TABS / TOGGLES ───────────────────────────────────────────
@@ -2100,6 +2154,7 @@ initMobileCollapse();
 // ── INIT ─────────────────────────────────────────────────────
 renderExcludes();
 updateSummary();
+setDefaultStructure(true);
 initDeviceBar();
 checkVersion();
 </script>
