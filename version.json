@@ -1,5 +1,5 @@
 {
-  "version": "2.2.6",
+  "version": "2.2.7",
   "date": "2026-04-23",
-  "changelog": "Gespeicherte Prompts und Favoriten stellen Chips jetzt robuster wieder her, fehlende Werte werden als aktive Custom-Chips ergänzt"
+  "changelog": "Lyrics-Prompt fordert jetzt englische Suno-Spielanweisungen und Dynamik-Tags im Songtext an"
 }

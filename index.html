@@ -1049,7 +1049,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
         <div>
           <div class="sub-label" style="margin-top:0">Installierte Version</div>
-          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.6</div>
+          <div style="font-size:18px;font-weight:600;color:var(--text)" id="settings-version">v2.2.7</div>
         </div>
         <div id="update-status-badge" style="font-size:12px;color:var(--text3);font-style:italic">–</div>
       </div>
@@ -1080,7 +1080,7 @@ select{background:var(--surface2);border:1px solid var(--border2);border-radius:
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 const SB_URL = 'https://cnlgpviurgpxcrjtfxqi.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGdwdml1cmdweGNyanRmeHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjExMjQsImV4cCI6MjA4ODMzNzEyNH0.FQ842Ete0xJ1MgCM0aBejDVkBL15-OaCGuN_0Cu80Og';
-const APP_VERSION = '2.2.6';
+const APP_VERSION = '2.2.7';
 
 // ── GERÄT-ID ─────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -1976,6 +1976,9 @@ function buildAndGoToOutput(){
     lp+='\nBeziehe den Text klar auf diesen musikalischen Style-Rahmen:\n'+styleContext+'\n';
     lp+='Passe Zeilenlänge, Wortwahl, Wiederholungen, Bildsprache und Refrain-Dichte an diesen Style an.\n';
   }
+  lp+='\nFüge im Songtext passende Suno-Spielanweisungen und Dynamik-Tags auf Englisch ein.\n';
+  lp+='Nutze kurze Tags in eckigen Klammern, z.B. [softly], [gentle fingerpicking], [voices enter], [build slowly], [drop to whisper], [instrumental break], [repeat softly], [final chorus quiet].\n';
+  lp+='Die Tags sollen musikalisch zum Style passen und sparsam, aber gezielt zwischen den Songteilen stehen.\n';
   if(getPromptMode()==='therapy') lp+='Arbeite musiktherapeutisch sensibel: stabilisierend, nicht überfordernd, gut mitsingbar.\n';
   if(setting.length) lp+='Setting: '+setting.join(', ')+'.\n';
   if(ziel.length) lp+='Ziel: '+ziel.join(', ')+'.\n';
