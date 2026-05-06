@@ -1,5 +1,263 @@
 {
-  "version": "2.2.8",
-  "date": "2026-04-23",
-  "changelog": "Songaufbau kann komplett gelöscht werden; neue Blöcke lassen sich vor oder nach markierten Elementen einfügen"
+    "appVersion":  "6.1.2",
+    "released":  "2026-05-06",
+    "updates":  [
+                    {
+                        "version":  "6.1.2",
+                        "changelog":  [
+                                          "Mehr-dazu-Button der Abendreflexion oeffnet wieder den Tagesabschluss",
+                                          "Tagesimpuls wird mobil vollstaendig angezeigt",
+                                          "Heutige Uebungen sind auf der Heute-Seite als Akkordeon einklappbar",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "6.1.1",
+                        "changelog":  [
+                                          "Begruessung richtet sich wieder nach Morgen, Mittag und Abend",
+                                          "Tageszeitwechsel aktualisiert Begruessung und Vorschlaege im laufenden Betrieb"
+                                      ]
+                    },
+                    {
+                        "version":  "6.1",
+                        "changelog":  [
+                                          "Wellen-Icon in der empfohlenen Uebung mobil im Kreis zentriert",
+                                          "Reflexions-Icon mobil verkleinert, damit es sauber in den Kreis passt"
+                                      ]
+                    },
+                    {
+                        "version":  "6.0",
+                        "changelog":  [
+                                          "Begruessung mobil auf eine Zeile gesetzt",
+                                          "Doppelte Anfuehrungszeichen im Tagesimpuls-Kreis entfernt",
+                                          "Tagesimpuls-Index laeuft kalendertagsbasiert weiter",
+                                          "Irritierende Pfeile ohne Aktion bei Moment-Karte und Streak mobil entfernt"
+                                      ]
+                    },
+                    {
+                        "version":  "5.9",
+                        "changelog":  [
+                                          "Mobile Streak-Karte auf Flamme und Tage-Zahl reduziert",
+                                          "Streak-Zusatztext in der engen Dashboard-Ansicht ausgeblendet"
+                                      ]
+                    },
+                    {
+                        "version":  "5.8",
+                        "changelog":  [
+                                          "Mobile Serien-Karte ohne alte Pseudobeschriftungen bereinigt",
+                                          "Streak-Anzeige auf Smartphone kompakt und ueberlagerungsfrei dargestellt"
+                                      ]
+                    },
+                    {
+                        "version":  "5.7",
+                        "changelog":  [
+                                          "Mobile Heute-Ansicht als kompaktes Dashboard nach Mockup angeordnet",
+                                          "Moment-Auswahl mobil als vier kleine Kacheln gesetzt",
+                                          "Fortschritt, Serie und Abendreflexion fuer den ersten Smartphone-Bildschirm verdichtet"
+                                      ]
+                    },
+                    {
+                        "version":  "5.6",
+                        "changelog":  [
+                                          "Halt-finden-Icon im Header als Inline-SVG eingebettet",
+                                          "Header-Icon laedt dadurch unabhaengig von einer separaten SVG-Datei"
+                                      ]
+                    },
+                    {
+                        "version":  "5.5",
+                        "changelog":  [
+                                          "Tagesfortschritt auf Smartphones noch knapper als Kreis-Text-Zeile gesetzt",
+                                          "Ueberlagerung im unteren Heute-Bereich weiter reduziert"
+                                      ]
+                    },
+                    {
+                        "version":  "5.4",
+                        "changelog":  [
+                                          "Tagesfortschritt mobil als kompakte Zeile ohne Ueberlagerung gesetzt",
+                                          "Untere Heute-Karten in der Smartphone-Ansicht weiter stabilisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "5.3",
+                        "changelog":  [
+                                          "Mobile Empfehlungszeile, Tagesfortschritt, Serie und Abendreflexion weiter verdichtet",
+                                          "Start-Button der empfohlenen Uebung mobil ohne doppelten Text dargestellt",
+                                          "Mobile Tagesfortschritt-Karte gegen Textueberlagerungen stabilisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "5.2",
+                        "changelog":  [
+                                          "Mobile Heute-Ansicht weiter verdichtet und staerker zeilenorientiert",
+                                          "Moment-Auswahl, Fortschritt, Serie, Reflexion und Tabbar mobil deutlich verkleinert",
+                                          "Halt-finden-Icon im Header robuster als echtes Bild-Icon eingebunden"
+                                      ]
+                    },
+                    {
+                        "version":  "5.1",
+                        "changelog":  [
+                                          "Tagesimpuls-Bild auch mobil sichtbar gemacht",
+                                          "Mobile Tagesimpuls-Karte auf Bild, Text und Tabbar abgestimmt",
+                                          "Tagesimpuls-Bild in den Service-Worker-Cache aufgenommen"
+                                      ]
+                    },
+                    {
+                        "version":  "5.0",
+                        "changelog":  [
+                                          "Mobile Heute-Ansicht deutlich kompakter skaliert",
+                                          "Header, Werkzeug-Buttons, Begruessung, Tagesimpuls und Tabbar fuer Smartphone neu verdichtet",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.9",
+                        "changelog":  [
+                                          "Anfuehrungszeichen im Tagesimpuls-Kreis optisch zentriert",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.8",
+                        "changelog":  [
+                                          "Halt-finden-Icon in der Moment-Auswahl als echtes Bild-Icon statt CSS-Background gerendert",
+                                          "Funktion des Moment-Halt-Buttons unveraendert beibehalten",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.7",
+                        "changelog":  [
+                                          "Halt-finden-Icon fuer die Moment-Auswahl als versioniertes, eng zugeschnittenes SVG eingebunden",
+                                          "Asset-Cache fuer das kleine Icon umgangen und Linienstaerke klarer gesetzt",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.6",
+                        "changelog":  [
+                                          "Neu bearbeitetes Herz-Haende-SVG direkt in Header und Moment-Auswahl verwendet",
+                                          "PNG-Zwischenloesung fuer die Moment-Auswahl ersetzt",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.5",
+                        "changelog":  [
+                                          "Halt-finden-Icon in der Moment-Auswahl aus der sauberen Header-Grafik zugeschnitten und klarer eingebunden",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.4",
+                        "changelog":  [
+                                          "Halt-finden-Icon in der Moment-Auswahl deutlicher gezoomt und kontrastreicher dargestellt",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.3",
+                        "changelog":  [
+                                          "Halt-finden-Icon in der Moment-Auswahl klarer und groesser dargestellt",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.2",
+                        "changelog":  [
+                                          "Halt-finden-Icon mit dem gelieferten Herz-Haende-SVG vereinheitlicht",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.1",
+                        "changelog":  [
+                                          "Hochgeladenes Meditationsfigur-SVG pixelgenau in der Moment-Karte eingebunden",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "4.0",
+                        "changelog":  [
+                                          "Fuer jetzt empfohlen wieder als schmale kompakte Empfehlungszeile gestaltet",
+                                          "Echte Uebungstitel bleiben sichtbar, lange Details wandern aus der kompakten Zeile",
+                                          "Meditationsfigur in der Moment-Karte an das Mockup angepasst",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.9",
+                        "changelog":  [
+                                          "Streak-Flamme waechst sichtbar mit zunehmender Dauer",
+                                          "Sprachumschaltung wieder sichtbar und konsistent nutzbar gemacht",
+                                          "Hilfe in Inhalt und Look an die neue Innenpause-Struktur angepasst",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.8",
+                        "changelog":  [
+                                          "Tagesimpuls wieder an den taeglich wechselnden Impuls-Pool angeschlossen",
+                                          "Aktuelle Uebung zeigt wieder den echten Vorschlag aus der Tageszeit- und Rotationslogik",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.7",
+                        "changelog":  [
+                                          "Hilfe an die neue App-Struktur mit Heute, Mehr, Halt finden, Uebungen und Einstellungen angepasst",
+                                          "Sicherungsdatei, seltene Aktionen und technische Hinweise in der Hilfe ruhiger beschrieben",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.6",
+                        "changelog":  [
+                                          "Mobile Ansicht fuer Header, Heute, Halt finden, Uebungen und Einstellungen nachjustiert",
+                                          "Halt finden alltagssprachlicher formuliert und Notiz-Vorschau verstaendlicher gemacht",
+                                          "Sicherungsdatei- und Einstellungsbereiche ruhiger und weniger technisch beschrieben",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.5",
+                        "changelog":  [
+                                          "Check-in-Punkt Verbundenheit mit erklaerender Frage ergaenzt",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.4",
+                        "changelog":  [
+                                          "App startet bei jedem neuen Öffnen wieder im Heute-Reiter",
+                                          "Reiterwechsel während der Nutzung bleibt weiterhin erhalten"
+                                      ]
+                    },
+                    {
+                        "version":  "3.3",
+                        "changelog":  [
+                                          "Header auf Smartphone und Desktop klarer abgesetzt",
+                                          "Mobiles Header-Layout entzerrt und Begruessung auf zwei Zeilen verteilt",
+                                          "Tagesimpuls im Kopfbereich besser lesbar skaliert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.2",
+                        "changelog":  [
+                                          "Header farblich klarer vom App-Inhalt abgesetzt",
+                                          "Check-ins erscheinen erst ab den eingestellten Tageszeiten",
+                                          "Tagesimpulse bleiben beim Sprachwechsel Deutsch/Englisch synchron",
+                                          "Ladeproblem im Tagesfortschritt behoben",
+                                          "Service-Worker-Cache auf neue App-Version aktualisiert"
+                                      ]
+                    },
+                    {
+                        "version":  "3.1",
+                        "changelog":  [
+                                          "Service Worker bereinigt nur noch eigene Innenpause-Caches",
+                                          "Versionsanzeige zeigt installierte, geladene und online verfuegbare Version klarer an",
+                                          "Backup-Erinnerung fuer lokale Daten verbessert",
+                                          "Changelog fuer technische Stabilitaetsupdates erweitert"
+                                      ]
+                    }
+                ]
 }

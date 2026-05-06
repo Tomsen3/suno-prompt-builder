@@ -1,56 +1,113 @@
-// Suno Prompt Builder – Service Worker
-// Beim Update: CACHE_NAME-Version hochzählen, damit alte Caches gelöscht werden
-const CACHE_NAME = 'suno-pb-v2-2-8';
-const CORE_FILES = [
-  './',
+// sw.js - stabilisierte Version (v5.2)
+
+const CACHE_NAME = 'innenpause-v6-1-2';
+const CACHE_PREFIX = 'innenpause-';
+
+const SHELL = [
   './index.html',
+  './manifest.json',
+  './css/styles.css',
+  './js/sync-backup.js',
+  './js/pdf-export.js',
   './version.json',
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap'
+  './data/bausteine.json',
+  './data/hilfe.json',
+  './assets/tagesimpuls-bg.png',
+  './assets/meditationsfigur.svg',
+  './herz_haende_exakt.svg',
+  './assets/herz_haende_moment_v2.svg'
 ];
 
-// Install: Core-Dateien cachen
+// INSTALL
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_FILES))
+    caches.open(CACHE_NAME).then(async cache => {
+      for (const file of SHELL) {
+        try {
+          await cache.add(file);
+        } catch (e) {
+          console.warn('Cache add fehlgeschlagen:', file);
+        }
+      }
+    })
   );
   self.skipWaiting();
 });
 
-// Activate: Alte Caches löschen
+// ACTIVATE
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME)
+          .map(k => caches.delete(k))
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: Network-first für version.json (Update-Check), Cache-first für Rest
+// FETCH
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Supabase-Requests immer direkt (kein Cache)
-  if (url.hostname.includes('supabase.co')) return;
-
-  // version.json: immer frisch vom Netz holen
+  // version.json IMMER frisch
   if (url.pathname.endsWith('version.json')) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
 
-  // Alles andere: Cache-first, Fallback Network
+  // ausgelagerte App-Daten frisch laden, offline aus Cache
+  if (url.pathname.endsWith('/data/bausteine.json') || url.pathname.endsWith('/data/hilfe.json')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // index.html = network-first
+  if (url.pathname === '/' || url.pathname.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
+          return res;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // alles andere = cache-first
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200) return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        return response;
-      });
+
+      return fetch(event.request)
+        .then(res => {
+          if (!res || res.status !== 200) return res;
+
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+
+          return res;
+        })
+        .catch(() => new Response('Offline', { status: 503 }));
     })
   );
 });
