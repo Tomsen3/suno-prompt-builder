@@ -1,0 +1,39 @@
+/* =========================================================================
+   MODULHANDBUCH MUSIKTHERAPIE – statische Web-App (Version 4.3 / Karte v4.3 / 59 Module)
+   Zusammenführung von Modullandkarte (HTML) + Modulhandbuch (DOCX).
+
+   GESTALTUNGSENTSCHEIDUNGEN (dokumentiert für Nachfolge):
+   - Bewusst KEINE externen Schriften/Bibliotheken: Die Datei muss offline und
+     im Stationsalltag (auch ausgedruckt) zuverlassig funktionieren. Daher ein
+     hochwertiger System-Font-Stack statt Google Fonts.
+   - Farbsystematik (Methodenfarben, Setting-Punkte) wurde unverandert aus der
+     bewährten Modullandkarte v10.7 übernommen, damit Karte und Profile konsistent
+     sind.
+   - Alle CSS-Variablen sind hier lokal definiert (fruher von der Claude-
+     Umgebung gestellt), damit die Datei eigenstandig lauffahig ist.
+   ========================================================================= */
+
+:root{
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+
+  --color-text-primary:#262420;
+  --color-text-secondary:#6b6760;
+  --color-background:#faf8f4;
+  --color-background-secondary:#f1ede5;
+  --color-surface:#ffffff;
+  --color-border-secondary:#d9d3c8;
+  --color-border-tertiary:#e7e2d8;
+  --border-radius-md:10px;
+
+  /* Settingfarben (aus v10.7) */
+  --c-psy:#1A6FBF; --c-sucht:#BA7517; --c-ger:#4A8A18; --c-akut:#D44000;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--color-background); color:var(--color-text-primary);
+  font-family:var(--font-sans); font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}

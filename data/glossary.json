@@ -1,0 +1,10 @@
+{
+    "Modul":  "Fachlich beschriebenes musiktherapeutisches Angebot.",
+    "Baustein":  "In einer Stunde verwendetes Modul.",
+    "Stunde":  "Geplante einzelne musiktherapeutische Einheit.",
+    "Verlauf":  "Folge mehrerer geplanter Stunden.",
+    "Wirkdimension":  "Therapeutische Zielrichtung eines Moduls.",
+    "Methode":  "Musiktherapeutischer methodischer Zugang.",
+    "Vertretung":  "Hinweis zur Eignung fÃ¼r Vertretungssituationen.",
+    "Exposition":  "Grad der persÃ¶nlichen oder gruppenbezogenen Offenheit."
+}

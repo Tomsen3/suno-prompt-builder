@@ -1,0 +1,18 @@
+{
+    "p":  {
+              "label":  "TK Psychosomatik",
+              "color":  "#1A6FBF"
+          },
+    "s":  {
+              "label":  "TK Sucht",
+              "color":  "#BA7517"
+          },
+    "g":  {
+              "label":  "Gerontopsychiatrie",
+              "color":  "#4A8A18"
+          },
+    "a":  {
+              "label":  "Akute Entgiftung",
+              "color":  "#D44000"
+          }
+}

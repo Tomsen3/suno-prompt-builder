@@ -1,0 +1,32 @@
+/* ===== Druckstile ===== */
+@media print{
+  .tabs,.app-ver,.search-wrap,.ml-filters,.panel-bar,.hb-toc,.overlay{display:none !important}
+  body{background:#fff;font-size:11pt}
+  .view{display:none !important;padding:0;max-width:none}
+  .panel{position:static;transform:none;width:100%;box-shadow:none;height:auto}
+  .panel-body{overflow:visible;padding:0}
+  /* Beim Drucken eines geoffneten Panels nur dieses zeigen */
+  body.printing-panel .panel{display:flex !important}
+  body.printing-panel .app-header{display:none}
+  .doc table{font-size:10pt}
+  .hinweis,.callout,.chip{break-inside:avoid}
+}
+
+/* Druck: dedizierter Druckbereich, blendet App komplett aus */
+#printArea{display:none}
+@media print{
+  body.pl-printing > *:not(#printArea){display:none !important}
+  body.pl-printing #printArea{display:block !important}
+  #printArea h1{font-family:var(--font-serif);font-size:20pt;margin:0 0 4pt}
+  #printArea h2{font-family:var(--font-serif);font-size:15pt;margin:18pt 0 6pt;border-top:0.5pt solid #bbb;padding-top:8pt}
+  #printArea h3{font-size:12pt;margin:10pt 0 3pt}
+  #printArea .pr-meta{font-size:10pt;color:#444;margin:0 0 8pt}
+  #printArea .pr-block{margin:0 0 10pt;break-inside:avoid}
+  #printArea .pr-phases{font-size:9.5pt;white-space:pre-wrap;color:#333;margin:2pt 0 0;padding-left:10pt;border-left:2pt solid #ccc}
+  #printArea table{border-collapse:collapse;width:100%;font-size:9.5pt;margin:4pt 0}
+  #printArea td,#printArea th{border:0.5pt solid #bbb;padding:3pt 6pt;text-align:left;vertical-align:top}
+  #printArea .pr-total{font-weight:700;font-size:10pt;margin-top:4pt}
+  #printArea .pr-warn{font-size:9pt;color:#8a4a00;margin:2pt 0}
+}
+
+

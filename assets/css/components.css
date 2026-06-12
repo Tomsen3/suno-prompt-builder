@@ -1,0 +1,64 @@
+/* ===== Gebrauchsanweisung / Hilfe ===== */
+.load-error{margin:14px auto;max-width:980px;padding:12px 16px;border:1px solid #A32D2D;border-radius:9px;background:#fff3f3;color:#7A1414}
+.help-wrap{max-width:860px;background:var(--color-surface);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:24px 28px;margin:0 auto 40px}
+.help-wrap h1{font-family:var(--font-serif);font-size:27px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em;line-height:1.18;color:var(--color-text-primary)}
+.help-wrap h2{font-family:var(--font-serif);font-size:21px;font-weight:600;margin:28px 0 10px;line-height:1.25;color:var(--color-text-primary)}
+.help-wrap h3{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);margin:20px 0 7px}
+.help-wrap p{margin:0 0 11px;color:var(--color-text-primary)}
+.help-wrap ul,.help-wrap ol{margin:0 0 14px;padding-left:22px}
+.help-wrap li{margin:4px 0}
+.help-lead{font-size:15.5px;color:var(--color-text-secondary);margin-bottom:18px!important}
+.help-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:9px;padding:13px 15px;margin:12px 0 16px}
+.help-card p:last-child{margin-bottom:0}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 16px}
+.help-step{border:0.5px solid var(--color-border-tertiary);border-radius:9px;padding:12px 14px;background:var(--color-surface)}
+.help-step strong{display:block;margin-bottom:4px;color:var(--color-text-primary)}
+.help-flow{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 16px}
+.help-flow span{font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:18px;padding:5px 9px;background:var(--color-background-secondary)}
+.help-example{font-family:var(--font-sans);font-size:13px;line-height:1.5;background:#fff;border:0.5px solid var(--color-border-secondary);border-radius:9px;padding:12px 14px;margin:8px 0 14px;white-space:pre-wrap;color:var(--color-text-primary)}
+@media(max-width:700px){.help-wrap{padding:18px 14px}.help-grid{grid-template-columns:1fr}.help-wrap h1{font-size:23px}.help-wrap h2{font-size:19px}}
+
+/* =====================================================================
+   MOBILE-OPTIMIERUNG (nachträglich ergänzt – Juni 2026)
+   PROBLEM (für Nachfolge dokumentiert):
+   Auf schmalen Smartphone-Displays liess sich die Seite horizontal
+   verschieben ("Darstellung zu breit"). Ursache waren die 4-spaltigen
+   Tabellen in den Modulprofilen (Steckbrief, Phasen-Ablauf, Checkpoints):
+   Durch das Standard-Tabellenverhalten (table-layout:auto) erzwangen lange
+   deutsche Wörter wie "Gerontopsychiatrie" oder "Selbstregulationserfahrungen"
+   eine Mindestbreite, die über den Bildschirmrand hinausragte und damit die
+   gesamte Seite breiter als das Display machte. Zusätzlich war der seitliche
+   Rand (24px) auf kleinen Geräten zu gross.
+   LÖSUNG (greift nur bis 600px Bildschirmbreite, Desktop bleibt unverändert):
+   1. Seitenränder von Kopf, Tabs, Ansichten und Detail-Panel reduziert.
+   2. Tabellen auf feste Spaltenbreiten (table-layout:fixed) umgestellt;
+      dadurch greifen die in der Datei hinterlegten Spaltenverhältnisse
+      (colgroup, auf Desktop bewusst ausgeblendet) wieder, und lange Wörter
+      werden per Silbentrennung/Umbruch gebrochen statt überzulaufen.
+   3. overflow-x:hidden als zusätzliche Absicherung gegen seitliches Wischen.
+   ===================================================================== */
+@media (max-width: 600px){
+  html, body{ overflow-x:hidden; }
+
+  .app-header{ padding:20px 14px 0; }
+  .app-title{ font-size:23px; }
+  .tabs{ padding:0 14px; gap:0; }
+  .tab{ padding:11px 9px 13px; font-size:13px; }
+  .view{ padding:14px 14px 60px; }
+
+  .panel{ width:100vw; }
+  .panel-bar{ padding:12px 14px; }
+  .panel-body{ padding:16px 14px 50px; }
+  .pl-picker{ width:100vw; }
+
+  /* Tabellen in Modulprofilen & Handbuch handytauglich machen */
+  .doc table{ table-layout:fixed; width:100%; font-size:11.5px; }
+  .doc colgroup{ display:table-column-group; }   /* hinterlegte Spaltenbreiten wieder aktiv */
+  .doc th, .doc td{
+    padding:5px 6px;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    hyphens:auto;
+  }
+  .doc thead th{ font-size:11px; }
+}
